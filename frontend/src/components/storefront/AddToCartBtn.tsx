@@ -106,7 +106,7 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
               <button
                 key={val}
                 onClick={() => setSelections({...selections, [attrName]: val})}
-                className={`min-w-[48px] h-12 flex items-center justify-center px-4 text-[11px] font-black border-2 transition-all uppercase tracking-widest ${selections[attrName] === val ? 'bg-black text-white border-black shadow-lg scale-105' : 'bg-white text-gray-400 border-gray-50 hover:border-black hover:text-black'}`}
+                className={`min-w-[48px] h-12 flex items-center justify-center px-4 text-[11px] font-black border-2 transition-all uppercase tracking-widest rounded-xl ${selections[attrName] === val ? 'bg-black text-white border-black shadow-lg scale-105' : 'bg-white text-gray-400 border-gray-50 hover:border-black hover:text-black'}`}
               >
                 {val}
               </button>
@@ -118,7 +118,7 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
       {/* Quantity Selector - Mechanical Design */}
       <div className="space-y-4 pt-2">
         <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em]">Quantity Specification</h3>
-        <div className="flex items-center w-36 h-12 bg-gray-50 border border-gray-100 rounded-lg overflow-hidden ring-1 ring-black/5">
+        <div className="flex items-center w-36 h-12 bg-gray-50 border border-gray-100 rounded-xl overflow-hidden ring-1 ring-black/5">
            <button 
              onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
              className="w-12 h-full flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 transition-all font-bold text-lg"
@@ -143,13 +143,13 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
       </div>
 
       <div className="pt-6 space-y-5">
-        {/* Purchase Trio - High Saturation Colors */}
+        {/* Purchase Trio - High Saturation Colors with Rounding */}
         <div className="grid grid-cols-2 gap-5">
           {/* Add to Cart - Vibrant Emerald */}
           <button 
             onClick={() => handleAddToCart()} 
             disabled={adding}
-            className="h-14 bg-[#059669] text-white font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-[#047857] active:scale-[0.98] flex items-center justify-center gap-2 shadow-xl shadow-[#059669]/20"
+            className="h-14 bg-[#059669] text-white font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-[#047857] active:scale-[0.98] flex items-center justify-center gap-2 shadow-xl shadow-[#059669]/20 rounded-2xl"
           >
              {adding ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
              {adding ? "In Bag" : "Add to Cart"}
@@ -158,7 +158,7 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
           {/* Buy it Now - Solid Onyx (Always Colored) */}
           <button 
             onClick={handleBuyNow}
-            className="h-14 bg-black text-white font-black text-[10px] uppercase tracking-[0.25em] transition-all hover:bg-neutral-800 active:scale-[0.98] flex items-center justify-center gap-2 shadow-2xl shadow-black/10"
+            className="h-14 bg-black text-white font-black text-[10px] uppercase tracking-[0.25em] transition-all hover:bg-neutral-800 active:scale-[0.98] flex items-center justify-center gap-2 shadow-2xl shadow-black/10 rounded-2xl"
           >
              <Zap className="w-4 h-4" /> Buy it Now
           </button>
@@ -168,7 +168,7 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
         <div className="space-y-3">
           <button 
             onClick={handleWhatsAppOrder}
-            className="w-full h-14 bg-[#22c55e] text-white font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-[#16a34a] hover:shadow-xl hover:shadow-[#22c55e]/30 active:scale-[0.98] flex items-center justify-center gap-3 rounded-none ring-1 ring-[#22c55e]/20 shadow-lg shadow-[#22c55e]/10"
+            className="w-full h-14 bg-[#22c55e] text-white font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-[#16a34a] hover:shadow-xl hover:shadow-[#22c55e]/30 active:scale-[0.98] flex items-center justify-center gap-3 rounded-2xl ring-1 ring-[#22c55e]/20 shadow-lg shadow-[#22c55e]/10"
           >
             <MessageCircle className="w-5 h-5 fill-white" />
             WhatsApp Order

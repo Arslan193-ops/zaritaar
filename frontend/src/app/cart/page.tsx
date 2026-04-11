@@ -170,9 +170,9 @@ export default function CartPage() {
                         value={promoCode}
                         onChange={e => setPromoCode(e.target.value)}
                         placeholder="ENTER CODE" 
-                        className="flex-1 h-12 bg-gray-50 border border-gray-100 rounded-xl px-4 text-xs font-bold uppercase tracking-widest outline-none focus:border-gray-900 transition-all placeholder:text-gray-200"
+                        className="flex-1 h-12 bg-gray-50 border border-gray-100 rounded-xl px-4 text-xs font-bold uppercase tracking-widest outline-none focus:border-[#059669] transition-all placeholder:text-gray-200"
                       />
-                      <button className="h-12 px-6 bg-gray-100 hover:bg-gray-900 hover:text-white text-gray-900 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all">
+                      <button className="h-12 px-6 bg-gray-100 hover:bg-[#059669] hover:text-white text-gray-900 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all">
                         Apply
                       </button>
                     </div>
@@ -189,7 +189,7 @@ export default function CartPage() {
                 <div className="space-y-8 pt-4">
                   <Link href="/checkout">
                     <button 
-                      className="w-full h-16 bg-gray-900 hover:bg-black text-white font-bold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3" 
+                      className="w-full h-16 bg-[#059669] hover:bg-[#047857] text-white font-bold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-[#059669]/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3" 
                     >
                       Checkout Now <ArrowRight className="w-4 h-4" />
                     </button>

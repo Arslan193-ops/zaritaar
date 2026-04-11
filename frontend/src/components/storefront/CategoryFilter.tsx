@@ -41,7 +41,7 @@ export default function CategoryFilter() {
       <div className="lg:hidden flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
         <button 
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 text-sm font-bold text-gray-900 border border-gray-200 px-4 py-2 rounded-lg"
+          className="flex items-center gap-2 text-sm font-bold text-[#059669] border border-[#059669]/20 bg-[#059669]/5 px-4 py-2 rounded-lg"
         >
           <SlidersHorizontal className="w-4 h-4" /> Filter & Sort
         </button>
@@ -121,9 +121,9 @@ export default function CategoryFilter() {
                 </div>
                 <button 
                   onClick={handlePriceApply}
-                  className="w-full py-3 bg-black hover:bg-gray-900 text-white text-[11px] font-bold uppercase tracking-[0.2em] transition-colors"
+                  className="w-full py-3 bg-[#059669] hover:bg-[#047857] text-white text-[11px] font-bold uppercase tracking-[0.2em] transition-colors rounded-xl shadow-lg shadow-[#059669]/10"
                 >
-                  Apply Filter
+                  Apply Selection
                 </button>
               </div>
 
@@ -138,7 +138,7 @@ export default function CategoryFilter() {
                       checked={searchParams.get("inStock") === "true"}
                       onChange={(e) => updateFilters("inStock", e.target.checked ? "true" : "")}
                     />
-                    <div className="w-4 h-4 border border-gray-300 peer-checked:bg-black peer-checked:border-black transition-colors group-hover:border-gray-400" />
+                    <div className="w-4 h-4 border border-gray-300 rounded-sm peer-checked:bg-[#059669] peer-checked:border-[#059669] transition-colors group-hover:border-[#059669]" />
                     <svg className="w-3 h-3 text-white absolute scale-0 peer-checked:scale-100 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </div>
                   <span className="text-[13px] font-medium text-gray-500 group-hover:text-gray-900 transition-colors">In Stock Only</span>

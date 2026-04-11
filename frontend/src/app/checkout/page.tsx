@@ -92,7 +92,7 @@ export default function CheckoutPage() {
               </p>
             </div>
             <Link href="/">
-              <button className="bg-gray-900 text-white px-12 py-5 font-black text-[10px] uppercase tracking-[0.4em] transition-all hover:bg-black">
+              <button className="bg-[#059669] hover:bg-[#047857] text-white px-12 py-5 font-black text-[10px] uppercase tracking-[0.4em] transition-all rounded-xl shadow-lg shadow-[#059669]/10">
                 Return to Registry
               </button>
             </Link>
@@ -290,7 +290,7 @@ export default function CheckoutPage() {
               <div className="space-y-8 pt-4">
                 <button 
                   type="submit" 
-                  className="w-full h-16 bg-gray-900 hover:bg-black text-white font-bold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-gray-200 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3" 
+                  className="w-full h-16 bg-[#059669] hover:bg-[#047857] text-white font-bold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-[#059669]/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3" 
                   disabled={isSubmitting || cart.length === 0}
                 >
                   {isSubmitting ? (

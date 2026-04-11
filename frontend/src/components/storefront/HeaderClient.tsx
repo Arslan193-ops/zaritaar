@@ -160,9 +160,9 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                               key={product.id} 
                               href={`/product/${product.id}`}
                               onClick={() => setIsSearchOpen(false)}
-                              className="flex items-center gap-4 group hover:bg-black hover:text-white p-2 -mx-2 rounded-xl transition-all duration-300"
+                              className="flex items-center gap-4 group hover:bg-[#059669] hover:text-white p-2 -mx-2 rounded-2xl transition-all duration-300"
                             >
-                              <div className="w-10 h-14 bg-gray-100 relative overflow-hidden shrink-0 rounded-lg">
+                              <div className="w-10 h-14 bg-gray-100 relative overflow-hidden shrink-0 rounded-xl">
                                 <Image 
                                   src={product.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop'} 
                                   alt={product.title} 
@@ -172,7 +172,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <h4 className="text-[11px] font-black uppercase tracking-wider line-clamp-1">{product.title}</h4>
-                                <p className="text-[10px] font-bold opacity-60">${product.basePrice?.toFixed(2)}</p>
+                                <p className="text-[10px] font-bold opacity-60">Rs. {product.basePrice?.toLocaleString()}</p>
                               </div>
                               <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                             </Link>
@@ -180,7 +180,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                           {searchResults.length >= 5 && (
                             <button 
                               onClick={handleSearchSubmit}
-                              className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-2 pt-4 group hover:underline underline-offset-4"
+                              className="text-[10px] font-black uppercase tracking-widest text-[#059669] flex items-center gap-2 pt-4 group hover:underline underline-offset-4"
                             >
                               View all results <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                             </button>
@@ -309,10 +309,10 @@ export default function HeaderClient({ settings }: { settings?: any }) {
               <Search className="w-5 h-5" />
             </button>
             
-            <Link href="/cart" className="relative p-2 text-gray-700 hover:text-black transition-colors">
+            <Link href="/cart" className="relative p-2 text-gray-700 hover:text-[#059669] transition-colors">
               <ShoppingBag className="w-5 h-5" />
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 bg-black text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full border-2 border-white px-0.5">
+                <span className="absolute top-1 right-1 bg-[#059669] text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full border-2 border-white px-0.5 shadow-sm">
                   {cartCount}
                 </span>
               )}
