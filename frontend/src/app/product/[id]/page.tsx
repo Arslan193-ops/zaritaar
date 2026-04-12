@@ -1,11 +1,12 @@
-import { notFound } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
 import prisma from "@/lib/prisma"
 import { AddToCartBtn } from "@/components/storefront/AddToCartBtn"
 import Header from "@/components/storefront/Header"
 import { getStoreSettings } from "@/lib/settings"
-import Image from "next/image"
-import { Star, Truck, ShieldCheck, ArrowLeft, Share2, Heart, ShoppingBag, Table as TableIcon, CheckCircle2 } from "lucide-react"
-import Link from "next/link"
+import { Truck, ShoppingBag } from "lucide-react"
+import { client, urlFor } from "@/lib/sanity"
+import { notFound } from "next/navigation"
 
 export const dynamic = "force-dynamic"
 
@@ -13,39 +14,36 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const { id } = await params
   const settings = await getStoreSettings()
   
-  const product = await prisma.product.findUnique({
-    where: { id },
-    include: { variants: true, category: true, images: { orderBy: { order: "asc" } } }
-  })
+  // Fetch from Sanity with GROQ
+  const product = await client.fetch(`*[_type == "product" && (_id == $id || slug.current == $id)][0]`, { id })
 
   if (!product) return notFound()
   
   // Extract all dynamic options from variants
   const options: Record<string, string[]> = {}
   
-  product.variants.forEach((v: any) => {
+  product.variants?.forEach((v: any) => {
     if (v.attributes) {
-      const attrs = JSON.parse(v.attributes)
-      Object.entries(attrs).forEach(([key, value]) => {
-        if (!options[key]) options[key] = []
-        if (value && !options[key].includes(value as string)) {
-          options[key].push(value as string)
-        }
-      })
+      try {
+        const attrs = typeof v.attributes === 'string' ? JSON.parse(v.attributes) : v.attributes
+        Object.entries(attrs).forEach(([key, value]) => {
+          if (!options[key]) options[key] = []
+          if (value && !options[key].includes(value as string)) {
+            options[key].push(value as string)
+          }
+        })
+      } catch (e) {
+        console.error("Error parsing variants:", e)
+      }
     }
   })
 
   const sizeChartData = product.sizeChart ? JSON.parse(product.sizeChart) : null
   
-  const relatedProducts = await prisma.product.findMany({
-    where: { 
-      categoryId: product.categoryId,
-      id: { not: product.id },
-      status: "PUBLISHED"
-    },
-    take: 4,
-    orderBy: { createdAt: "desc" }
-  })
+  const relatedProducts = await client.fetch(
+    `*[_type == "product" && category == $categoryId && _id != $id && status == "PUBLISHED"][0...4]`, 
+    { categoryId: product.category, id: product._id }
+  )
 
   return (
     <div className="min-h-screen bg-[#FDFCF9] flex flex-col font-sans selection:bg-black selection:text-white">
@@ -56,12 +54,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           {/* Gallery Architecture - Vertical Thumbnails Style */}
           <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-6">
             {/* Gallery Thumbnails - Vertical */}
-            {product.images.length > 1 && (
+            {product.images?.length > 1 && (
               <div className="flex md:flex-col gap-4 overflow-x-auto md:overflow-visible no-scrollbar md:w-20 shrink-0">
-                {product.images.map((img, i) => (
-                  <div key={img.id} className="aspect-[3/4] w-20 bg-gray-50 rounded-lg overflow-hidden cursor-pointer group relative border border-gray-100">
+                {product.images.map((img: any, i: number) => (
+                  <div key={img._key || i} className="aspect-[3/4] w-20 bg-gray-50 rounded-lg overflow-hidden cursor-pointer group relative border border-gray-100">
                     <img 
-                      src={img.url} 
+                      src={urlFor(img).width(200).url()} 
                       alt={`${product.title} view ${i+1}`} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                     />
@@ -72,7 +70,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
             <div className="flex-1 aspect-[3/4] sm:aspect-[4/5] bg-gray-50 rounded-2xl overflow-hidden relative group max-h-[600px] lg:max-h-[75vh] w-full">
               <Image 
-                src={product.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop'} 
+                src={product.images?.[0] ? urlFor(product.images[0]).width(800).url() : 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop'} 
                 alt={product.title}
                 fill
                 className="object-cover object-top"
@@ -92,7 +90,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 
                 <div className="flex items-center gap-4 mt-4">
                    <div className="text-2xl font-medium text-gray-900">
-                    Rs. {product.basePrice.toLocaleString()}
+                    Rs. {(product.basePrice || 0).toLocaleString()}
                    </div>
                    <span className="bg-green-50 text-green-600 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border border-green-100">
                       <Truck className="w-3 h-3" /> Free Shipping
@@ -156,11 +154,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-               {relatedProducts.map(item => (
-                 <Link key={item.id} href={`/product/${item.id}`} className="group space-y-4">
+               {relatedProducts.map((item: any) => (
+                 <Link key={item._id} href={`/product/${item.slug?.current || item._id}`} className="group space-y-4">
                     <div className="aspect-[3/4] bg-gray-50 rounded-xl overflow-hidden relative">
                        <Image 
-                         src={item.imageUrl || ""} 
+                         src={item.images?.[0] ? urlFor(item.images[0]).width(400).url() : ""} 
                          alt={item.title} 
                          fill 
                          className="object-cover transition-transform duration-700 group-hover:scale-105"

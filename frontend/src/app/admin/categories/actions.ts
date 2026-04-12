@@ -2,14 +2,10 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
-import { existsSync } from "fs"
+import { client } from "@/lib/sanity"
 
 export async function getCategories() {
-  return await prisma.category.findMany({
-    orderBy: { name: "asc" }
-  })
+  return await client.fetch(`*[_type == "category"] | order(name asc)`)
 }
 
 export async function createCategory(formData: FormData) {
@@ -18,29 +14,37 @@ export async function createCategory(formData: FormData) {
     const slug = formData.get("slug") as string
     const description = formData.get("description") as string
     
-    // Handle local file upload for category thumbnail
+    // 1. Upload to Sanity
     const file = formData.get("image") as File
-    let imageUrl = null
+    let imageAsset = null
 
     if (file && file.size > 0) {
-      const uploadDir = join(process.cwd(), "public", "uploads", "categories")
-      if (!existsSync(uploadDir)) {
-        await mkdir(uploadDir, { recursive: true })
-      }
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      const uniqueName = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`
-      const path = join(uploadDir, uniqueName)
-      await writeFile(path, buffer)
-      imageUrl = `/uploads/categories/${uniqueName}`
+      imageAsset = await client.assets.upload('image', file, {
+        filename: file.name,
+        contentType: file.type
+      })
     }
 
+    // 2. Create Category in Sanity
+    const sanityCategory = await client.create({
+      _type: 'category',
+      name,
+      slug: { _type: 'slug', current: slug },
+      description,
+      image: imageAsset ? {
+        _type: 'image',
+        asset: { _type: 'reference', _ref: imageAsset._id }
+      } : undefined
+    })
+
+    // 3. Keep sync in Prisma (Lite)
     await prisma.category.create({
       data: {
+        id: sanityCategory._id,
         name,
         slug,
         description,
-        imageUrl
+        imageUrl: null // Images are now in Sanity
       }
     })
 
@@ -59,26 +63,27 @@ export async function updateCategory(id: string, formData: FormData) {
     const slug = formData.get("slug") as string
     const description = formData.get("description") as string
     
-    // Handle image upload
+    // Update Sanity
     const file = formData.get("image") as File
-    let data: any = { name, slug, description }
+    let patchData: any = { name, slug: { _type: 'slug', current: slug }, description }
 
     if (file && file.size > 0) {
-      const uploadDir = join(process.cwd(), "public", "uploads", "categories")
-      if (!existsSync(uploadDir)) {
-        await mkdir(uploadDir, { recursive: true })
+      const imageAsset = await client.assets.upload('image', file, {
+        filename: file.name,
+        contentType: file.type
+      })
+      patchData.image = {
+        _type: 'image',
+        asset: { _type: 'reference', _ref: imageAsset._id }
       }
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      const uniqueName = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`
-      const path = join(uploadDir, uniqueName)
-      await writeFile(path, buffer)
-      data.imageUrl = `/uploads/categories/${uniqueName}`
     }
 
+    await client.patch(id).set(patchData).commit()
+
+    // Sync Prisma
     await prisma.category.update({
       where: { id },
-      data
+      data: { name, slug, description }
     })
 
     revalidatePath("/admin/categories")
@@ -100,6 +105,7 @@ export async function deleteCategory(id: string) {
 
 export async function deleteCategories(ids: string[]) {
   try {
+    await Promise.all(ids.map(id => client.delete(id)))
     await prisma.category.deleteMany({
       where: { id: { in: ids } }
     })

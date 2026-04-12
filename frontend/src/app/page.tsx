@@ -1,31 +1,20 @@
-import Link from "next/link"
+  import Link from "next/link"
 import Image from "next/image"
 import prisma from "@/lib/prisma"
 import Header from "@/components/storefront/Header"
 import { getStoreSettings } from "@/lib/settings"
 import HeroSlider from "@/components/storefront/HeroSlider"
-import { ArrowRight, Star, Truck, ShieldCheck, Clock, ShoppingBag } from "lucide-react"
+import { ArrowRight, ShoppingBag } from "lucide-react"
+import { client, urlFor } from "@/lib/sanity"
+import { notFound } from "next/navigation"
 
 export const dynamic = "force-dynamic"
 
 export default async function Home() {
   const settings = await getStoreSettings()
   
-  const categories = await prisma.category.findMany({
-    orderBy: { createdAt: "asc" }
-  })
-
-  // Fetch all published products
-  const products = await prisma.product.findMany({
-    // @ts-ignore - Prisma type sync issue
-    where: { status: "PUBLISHED" } as any,
-    include: {
-      variants: true,
-      category: true,
-    },
-    orderBy: { createdAt: "desc" },
-    take: 12
-  })
+  const categories = await client.fetch(`*[_type == "category"] | order(createdAt asc)`)
+  const products = await client.fetch(`*[_type == "product" && status == "PUBLISHED"] | order(createdAt desc) [0...12]`)
 
   // Parse slider images
   const sliderImages = JSON.parse(settings?.heroSliderImages || "[]")
@@ -89,12 +78,12 @@ export default async function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {categories.map((cat, idx) => (
-                <Link href={`/category/${cat.slug}`} key={cat.id} className="group block space-y-3">
+              {categories.map((cat: any, idx: number) => (
+                <Link href={`/category/${cat.slug?.current || cat.slug}`} key={cat._id || cat.id} className="group block space-y-3">
                   <div className="aspect-[4/5] bg-gray-100 relative overflow-hidden shadow-sm transition-all duration-300 group-hover:shadow-md">
                      {cat.imageUrl ? (
                         <Image 
-                          src={cat.imageUrl} 
+                          src={urlFor(cat.image).width(400).url()} 
                           alt={cat.name}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -149,9 +138,10 @@ export default async function Home() {
               <Link key={product.id} href={`/product/${product.id}`} className="group block space-y-4">
                 <div className="aspect-[4/5] bg-gray-50 overflow-hidden relative shadow-sm transition-all duration-500 group-hover:shadow-md group-hover:-translate-y-1">
                   <Image 
-                    src={product.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop'} 
+                    src={product.images?.[0] ? urlFor(product.images[0]).width(600).url() : 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop'} 
                     alt={product.title}
                     fill
+                    loading="lazy"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute top-4 left-4">

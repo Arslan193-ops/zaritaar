@@ -3,10 +3,9 @@
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import fs from "fs"
-import path from "path"
 import { getSession } from "@/lib/auth"
 import { hasPermission, PERMISSIONS } from "@/lib/permissions"
+import { client } from "@/lib/sanity"
 
 export async function getCategories() {
   return await prisma.category.findMany({
@@ -103,34 +102,49 @@ export async function createProduct(formData: FormData) {
     const freeShipping = formData.get("freeShipping") === "true"
     const isFeatured = formData.get("isFeatured") === "true"
     
-    // Create product
+    // 1. Upload Images to Sanity First
+    const imageAssetIds = await handleImageUploadsToSanity(formData)
+    
+    // 2. Create Product in Sanity (The "Content" Database)
+    const sanityProduct = await client.create({
+      _type: 'product',
+      title,
+      slug: { _type: 'slug', current: slug },
+      description,
+      basePrice,
+      discountedPrice,
+      stock,
+      sku,
+      status,
+      tags: tags ? tags.split(',').map(t => t.trim()) : [],
+      showSizeSelector,
+      showColorSelector,
+      freeShipping,
+      isFeatured,
+      images: imageAssetIds.map((id, index) => ({
+        _key: `img_${Date.now()}_${index}`,
+        _type: 'image',
+        asset: { _type: 'reference', _ref: id }
+      })),
+      // Store the Prisma Category ID if needed, or link to Sanity category
+      category: categoryId ? { _type: 'string', value: categoryId } : null 
+    })
+
+    // 3. Keep a "Lite" version in Prisma for lightning-fast relational lookups (optional but recommended for checkout)
     const product = await prisma.product.create({
       data: {
+        id: sanityProduct._id, // Sync IDs
         title,
         slug,
         description,
         basePrice,
         discountedPrice,
-        costPrice,
         sku,
         stock,
         status,
         categoryId,
-        sizeChart,
-        attributes,
-        tags,
-        metaTitle,
-        metaDescription,
-        keywords,
-        showSizeSelector,
-        showColorSelector,
-        freeShipping,
-        isFeatured,
       }
     })
-    
-    // Handle local file uploads
-    await handleImageUploads(product.id, formData)
     
     // Create variants
     await handleVariantSync(product.id, formData)
@@ -205,8 +219,31 @@ export async function updateProduct(id: string, formData: FormData) {
     
     console.log("UPDATE_SUCCESSFUL:", id)
 
-    // Handle NEW images
-    await handleImageUploads(id, formData)
+    // Handle NEW images to Sanity
+    const imageAssetIds = await handleImageUploadsToSanity(formData)
+    
+    // Update Sanity Document
+    await client.patch(id)
+      .set({
+        title,
+        description,
+        basePrice,
+        discountedPrice,
+        stock,
+        sku,
+        status,
+        tags: tags ? tags.split(',').map(t => t.trim()) : [],
+        showSizeSelector,
+        showColorSelector,
+        freeShipping,
+        isFeatured,
+      })
+      .append('images', imageAssetIds.map((assetId, index) => ({
+        _key: `img_${Date.now()}_${index}`,
+        _type: 'image',
+        asset: { _ref: assetId, _type: 'reference' }
+      })))
+      .commit()
 
     // Sync Variants (Delete all and recreate)
     await prisma.productVariant.deleteMany({ where: { productId: id } })
@@ -222,30 +259,21 @@ export async function updateProduct(id: string, formData: FormData) {
   }
 }
 
-async function handleImageUploads(productId: string, formData: FormData) {
+async function handleImageUploadsToSanity(formData: FormData) {
   const images = formData.getAll("imageFiles") as File[]
-  if (images.length === 0 || (images.length === 1 && images[0].size === 0)) return
+  const assetIds: string[] = []
 
-  const uploadDir = path.join(process.cwd(), "public", "uploads")
-  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true })
-
-  for (let i = 0; i < images.length; i++) {
-    const image = images[i]
+  for (const image of images) {
     if (image.size === 0) continue
     
-    const buffer = Buffer.from(await image.arrayBuffer())
-    const filename = `${Date.now()}-${image.name}`
-    const filepath = path.join(uploadDir, filename)
-    fs.writeFileSync(filepath, buffer)
-
-    await prisma.productImage.create({
-      data: {
-        url: `/uploads/${filename}`,
-        productId: productId,
-        order: i
-      }
+    // Sanity handles the shrinking/optimization automatically here!
+    const asset = await client.assets.upload('image', image, {
+      filename: image.name,
+      contentType: image.type
     })
+    assetIds.push(asset._id)
   }
+  return assetIds
 }
 
 async function handleVariantSync(productId: string, formData: FormData) {

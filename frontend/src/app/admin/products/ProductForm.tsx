@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { UploadCloud, Plus, Trash2, X, TableIcon, Settings2, Loader2, Save } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { urlFor } from "@/lib/sanity"
 
 export function ProductForm({ product }: { product?: any }) {
   const router = useRouter()
@@ -14,7 +15,10 @@ export function ProductForm({ product }: { product?: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [images, setImages] = useState<{ file?: File, preview: string, id?: string }[]>(
-    product?.images?.map((img: any) => ({ preview: img.url, id: img.id })) || []
+    product?.images?.map((img: any) => ({ 
+      preview: typeof img === 'string' ? img : (img.asset ? urlFor(img).url() : ""), 
+      id: img._key || img.id 
+    })) || []
   )
   
   const [attributes, setAttributes] = useState<{name: string, values: string[]}[]>(() => {
@@ -352,7 +356,7 @@ export function ProductForm({ product }: { product?: any }) {
             
             {images.map((img, i) => (
               <div key={i} className="w-28 h-28 relative group rounded-md overflow-hidden border border-gray-200 shadow-sm">
-                <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                {img.preview && <img src={img.preview} alt="" className="w-full h-full object-cover" />}
                 <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 w-6 h-6 bg-black/70 text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500">
                   <X className="w-3 h-3" />
                 </button>
