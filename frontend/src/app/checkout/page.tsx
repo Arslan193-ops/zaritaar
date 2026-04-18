@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createOrder } from "../cart/actions"
 import Header from "@/components/storefront/Header"
+import Footer from "@/components/storefront/Footer"
 import Image from "next/image"
+import { CdnImage } from "@/components/storefront/CdnImage"
 import { toast } from "sonner"
 
 export default function CheckoutPage() {
@@ -92,7 +94,7 @@ export default function CheckoutPage() {
               </p>
             </div>
             <Link href="/">
-              <button className="bg-[#059669] hover:bg-[#047857] text-white px-12 py-5 font-black text-[10px] uppercase tracking-[0.4em] transition-all rounded-xl shadow-lg shadow-[#059669]/10">
+              <button className="bg-black hover:bg-neutral-800 text-white px-12 py-5 font-black text-[10px] uppercase tracking-[0.4em] transition-all rounded-xl shadow-lg shadow-black/10">
                 Return to Registry
               </button>
             </Link>
@@ -117,9 +119,9 @@ export default function CheckoutPage() {
             <div className="inline-flex items-center gap-2 py-1 px-3 bg-black/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Checkout Process
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">COMPLETE ORDER</h1>
+            <h1 className="text-2xl md:text-5xl font-bold text-gray-900 tracking-tight">COMPLETE ORDER</h1>
           </div>
-          <div className="flex items-center gap-2 text-xs font-bold text-green-600 uppercase tracking-widest bg-green-50 px-4 py-2 rounded-full border border-green-100">
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-900 uppercase tracking-widest bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
             <Lock className="w-3.5 h-3.5" />
             Secure Transaction
           </div>
@@ -244,15 +246,19 @@ export default function CheckoutPage() {
                 {cart.map((item, i) => (
                   <div key={i} className="flex gap-4 items-center group">
                     <div className="w-16 h-20 bg-gray-50 rounded-xl overflow-hidden relative flex-shrink-0">
-                      <Image 
-                        src={item.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop'} 
+                      {item.imageUrl ? (
+                      <CdnImage 
+                        src={item.imageUrl} 
                         alt={item.title}
                         fill
                         className="object-cover"
                       />
+                      ) : (
+                      <Image src="/placeholder.svg" alt="" fill className="object-cover" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                       <h4 className="text-xs font-bold text-gray-900 truncate">{item.title}</h4>
+                       <h4 className="text-xs font-bold text-gray-900 truncate tracking-tight">{item.title}</h4>
                        <div className="flex flex-wrap gap-2 mt-1">
                           {item.selections && Object.entries(item.selections).map(([key, val]) => (
                             <span key={key} className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
@@ -262,7 +268,7 @@ export default function CheckoutPage() {
                           <span className="text-[9px] font-bold text-gray-900 uppercase tracking-widest bg-gray-50 px-1.5 py-0.5 rounded">QTY: {item.quantity || 1}</span>
                        </div>
                     </div>
-                    <p className="text-sm font-black text-gray-900 tracking-tighter">${(item.price * (item.quantity || 1)).toFixed(2)}</p>
+                    <p className="text-sm font-black text-gray-900 tracking-tighter">Rs. {(item.price * (item.quantity || 1)).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
@@ -270,18 +276,18 @@ export default function CheckoutPage() {
               <div className="pt-10 border-t border-gray-100 space-y-6">
                 <div className="flex justify-between items-center group">
                   <span className="text-sm font-medium text-gray-500 group-hover:text-gray-900 transition-colors">Subtotal</span>
-                  <span className="text-base font-bold text-gray-900">${subtotal.toFixed(2)}</span>
+                  <span className="text-base font-bold text-gray-900">Rs. {subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center group">
                   <span className="text-sm font-medium text-gray-500 group-hover:text-gray-900 transition-colors">Shipping</span>
-                  <span className="text-[10px] font-bold text-green-600 uppercase tracking-widest">Complimentary</span>
+                  <span className="text-[10px] font-bold text-gray-900 uppercase tracking-widest italic text-green-600">Complimentary</span>
                 </div>
                 
                 <div className="pt-8 border-t border-gray-100">
                   <div className="flex justify-between items-end">
                     <div className="space-y-1">
                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Order Value</span>
-                      <p className="text-3xl font-black text-gray-900 tracking-tighter leading-none">${total.toFixed(2)}</p>
+                      <p className="text-2xl md:text-3xl font-black text-gray-900 tracking-tighter leading-none">Rs. {total.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -290,7 +296,7 @@ export default function CheckoutPage() {
               <div className="space-y-8 pt-4">
                 <button 
                   type="submit" 
-                  className="w-full h-16 bg-[#059669] hover:bg-[#047857] text-white font-bold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-[#059669]/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3" 
+                  className="w-full h-16 bg-black hover:bg-neutral-800 text-white font-bold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-black/10 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3" 
                   disabled={isSubmitting || cart.length === 0}
                 >
                   {isSubmitting ? (
@@ -316,7 +322,7 @@ export default function CheckoutPage() {
         </form>
       </main>
 
-      <footer className="h-24" />
+      <Footer />
     </div>
   )
 }

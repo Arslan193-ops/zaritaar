@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import Image from "next/image"
+import { CdnImage } from "@/components/storefront/CdnImage"
 import Link from "next/link"
+import { useRenderGuard } from "@/lib/debug-utils"
 
 interface HeroSliderProps {
   images: string[]
@@ -24,6 +25,7 @@ export default function HeroSlider({
   showHeadline = true,
   showButton = true
 }: HeroSliderProps) {
+  useRenderGuard("HeroSlider", 30)
   const [currentIndex, setCurrentIndex] = useState(0)
 
   // Auto-scroll logic
@@ -40,7 +42,7 @@ export default function HeroSlider({
   }
 
   return (
-    <div className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden bg-[#fafafa]">
+    <div className="relative h-[65vh] md:h-[85vh] w-full overflow-hidden bg-[#fafafa]">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
@@ -50,10 +52,11 @@ export default function HeroSlider({
           transition={{ duration: 1.2, ease: "easeOut" }}
           className="absolute inset-0 z-0"
         >
-          <Image
+          <CdnImage
             src={images[currentIndex]}
             alt={`Slide ${currentIndex + 1}`}
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />
@@ -79,12 +82,12 @@ export default function HeroSlider({
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4, duration: 0.8 }}
-                    className="text-5xl md:text-8xl font-black text-white leading-[1.05] mb-8 tracking-tighter drop-shadow-2xl"
+                    className="text-2xl sm:text-4xl md:text-8xl font-black text-white leading-[1.1] mb-6 md:mb-8 tracking-tighter drop-shadow-2xl"
                 >
                     {headline?.split(" ").map((word, i) => (
                         <span key={i} className={i % 2 === 1 ? "text-white/60" : "text-white"}>
                             {word}{" "}
-                            {i === 1 && <br />}
+                            {i === 1 && <br className="hidden md:block" />}
                         </span>
                     )) || "ELEVATING THE MODERN STANDARD."}
                 </motion.h1>
@@ -94,7 +97,7 @@ export default function HeroSlider({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
-                className="text-lg md:text-xl text-white/80 max-w-xl mb-12 font-medium leading-relaxed drop-shadow-lg"
+                className="text-sm md:text-xl text-white/80 max-w-xl mb-8 md:mb-12 font-medium leading-relaxed drop-shadow-lg"
             >
                 {subtext || "Discover our meticulously engineered collection. Designed for the technical curator who appreciates the finer details."}
             </motion.p>

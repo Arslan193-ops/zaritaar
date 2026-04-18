@@ -4,6 +4,7 @@ import { useState } from "react"
 import { ImagePlus, Loader2, X } from "lucide-react"
 import { createCategory, updateCategory } from "./actions"
 import { toast } from "sonner"
+import { compressImage } from "@/lib/image-utils"
 
 export default function CategoryForm({ 
   initialData = null, 
@@ -20,8 +21,13 @@ export default function CategoryForm({
     e.preventDefault()
     setIsLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    if (imageFile) formData.append("image", imageFile)
+    const form = e.currentTarget
+    const formData = new FormData(form)
+    
+    if (imageFile) {
+      const compressed = await compressImage(imageFile)
+      formData.append("image", compressed)
+    }
 
     const res = initialData 
       ? await updateCategory(initialData.id, formData)
@@ -29,7 +35,7 @@ export default function CategoryForm({
 
     if (res.success) {
       toast.success(initialData ? "Category updated" : "Category created")
-      e.currentTarget.reset()
+      form.reset()
       setImagePreview(null)
       setImageFile(null)
       onSuccess()

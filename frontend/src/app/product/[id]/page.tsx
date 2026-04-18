@@ -1,12 +1,15 @@
 import Link from "next/link"
 import Image from "next/image"
+import { CdnImage } from "@/components/storefront/CdnImage"
 import prisma from "@/lib/prisma"
 import { AddToCartBtn } from "@/components/storefront/AddToCartBtn"
+import ProductGallery from "@/components/storefront/ProductGallery"
 import Header from "@/components/storefront/Header"
 import { getStoreSettings } from "@/lib/settings"
 import { Truck, ShoppingBag } from "lucide-react"
 import { client, urlFor } from "@/lib/sanity"
 import { notFound } from "next/navigation"
+import Footer from "@/components/storefront/Footer"
 
 export const dynamic = "force-dynamic"
 
@@ -16,13 +19,22 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   
   // Fetch from Sanity with GROQ
   const product = await client.fetch(`*[_type == "product" && (_id == $id || slug.current == $id)][0]`, { id })
-
   if (!product) return notFound()
   
-  // Extract all dynamic options from variants
-  const options: Record<string, string[]> = {}
+  // Also fetch variants from Prisma (Database) using the Sanity ID
+  const dbVariants = await prisma.productVariant.findMany({
+    where: { productId: product._id }
+  })
   
+  // Merging them for the UI
+  product.variants = dbVariants
+  
+  // Extract all dynamic options from variants with a robust fallback system
+  const options: Record<string, string[]> = {}
+  const systemKeys = ['id', 'productId', 'price', 'stock', 'sku', 'imageUrl', 'attributes', 'createdAt', 'updatedAt']
+
   product.variants?.forEach((v: any) => {
+    // Priority 1: JSON attributes object (Most structured)
     if (v.attributes) {
       try {
         const attrs = typeof v.attributes === 'string' ? JSON.parse(v.attributes) : v.attributes
@@ -33,9 +45,23 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           }
         })
       } catch (e) {
-        console.error("Error parsing variants:", e)
+        console.error("Error parsing attributes for product:", product._id, e)
       }
-    }
+    } 
+    
+    // Priority 2: Key-Agnostic Scan (Dynamic fallback for flat records)
+    // This catches fields like 'size', 'color', 'Size', 'Color', etc., automatically
+    Object.entries(v).forEach(([key, value]) => {
+      // Ignore internal system keys and our primary 'attributes' object
+      if (!systemKeys.includes(key) && value && typeof value === 'string') {
+        // Normalize the label (e.g., 'size' -> 'Size')
+        const label = key.charAt(0).toUpperCase() + key.slice(1)
+        if (!options[label]) options[label] = []
+        if (!options[label].includes(value)) {
+          options[label].push(value)
+        }
+      }
+    })
   })
 
   const sizeChartData = product.sizeChart ? JSON.parse(product.sizeChart) : null
@@ -49,92 +75,75 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     <div className="min-h-screen bg-[#FDFCF9] flex flex-col font-sans selection:bg-black selection:text-white">
       <Header />
       
-      <main className="flex-1 max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-12 md:py-16 w-full animate-in fade-in duration-1000">
-        <div className="grid lg:grid-cols-12 gap-12 xl:gap-20 items-start">
+      <main className="flex-1 max-w-[1440px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-5 sm:py-8 md:py-16 w-full min-w-0 animate-in fade-in duration-1000 pb-10 sm:pb-8 md:pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 md:gap-12 xl:gap-20 items-start w-full min-w-0">
           {/* Gallery Architecture - Vertical Thumbnails Style */}
-          <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-6">
-            {/* Gallery Thumbnails - Vertical */}
-            {product.images?.length > 1 && (
-              <div className="flex md:flex-col gap-4 overflow-x-auto md:overflow-visible no-scrollbar md:w-20 shrink-0">
-                {product.images.map((img: any, i: number) => (
-                  <div key={img._key || i} className="aspect-[3/4] w-20 bg-gray-50 rounded-lg overflow-hidden cursor-pointer group relative border border-gray-100">
-                    <img 
-                      src={urlFor(img).width(200).url()} 
-                      alt={`${product.title} view ${i+1}`} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="flex-1 aspect-[3/4] sm:aspect-[4/5] bg-gray-50 rounded-2xl overflow-hidden relative group max-h-[600px] lg:max-h-[75vh] w-full">
-              <Image 
-                src={product.images?.[0] ? urlFor(product.images[0]).width(800).url() : 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop'} 
-                alt={product.title}
-                fill
-                className="object-cover object-top"
-                priority
-              />
-            </div>
-          </div>
+          <ProductGallery images={product.images} title={product.title} />
 
           {/* Product Specifications & Purchase Buffer */}
-          <div className="lg:col-span-5 flex flex-col space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Exclusively Handcrafted</p>
-                <h1 className="text-4xl md:text-5xl font-serif text-gray-900 leading-[1.2]">
+          <div className="min-w-0 w-full lg:col-span-4 flex flex-col">
+            <div className="space-y-6 md:space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-4">
+                  <p className="text-[11px] font-black text-[#B8860B] uppercase tracking-[0.2em]">
+                    {product.category?.name || product.category || "Collection"}
+                  </p>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest shrink-0">
+                    SKU: {product.sku || (product._id || product.id).substring(0, 8).toUpperCase()}
+                  </span>
+                </div>
+                
+                <h1 className="text-xl md:text-5xl font-serif font-medium text-gray-900 leading-[1.15] tracking-tight">
                   {product.title}
                 </h1>
                 
-                <div className="flex items-center gap-4 mt-4">
-                   <div className="text-2xl font-medium text-gray-900">
+                <div className="flex items-center gap-5 pt-1">
+                   <div className="text-2xl md:text-3xl font-medium text-gray-900 leading-none tabular-nums">
                     Rs. {(product.basePrice || 0).toLocaleString()}
                    </div>
-                   <span className="bg-green-50 text-green-600 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border border-green-100">
-                      <Truck className="w-3 h-3" /> Free Shipping
-                   </span>
+                   <div className="flex">
+                    <span className="border border-emerald-500/30 bg-emerald-50/50 text-emerald-600 px-3 py-1 text-[9px] font-black uppercase tracking-[0.1em] flex items-center gap-1.5">
+                        <Truck className="w-3.5 h-3.5" /> Free Shipping
+                    </span>
+                   </div>
                 </div>
 
                 {(product.stock > 0 && product.stock < 10) && (
-                  <p className="text-xs font-bold text-orange-600 mt-4 italic">
+                  <p className="text-[11px] font-bold text-[#E67E22] italic mt-2">
                     Only {product.stock} left in stock - order soon!
                   </p>
                 )}
               </div>
               
-              <div className="prose prose-sm max-w-none pt-4">
-                <p className="text-sm text-gray-600 leading-relaxed tracking-wide">
+              <div className="prose prose-sm max-w-none pt-2">
+                <div className="text-xs md:text-sm text-gray-600 leading-relaxed tracking-wide break-words whitespace-pre-wrap font-medium">
                   {product.description}
-                </p>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-8 pt-4">
-              <AddToCartBtn 
-                product={product as any} 
-                options={options} 
-                whatsappNumber={settings?.whatsappNumber || ""} 
-              />
+            <AddToCartBtn 
+              product={product as any} 
+              options={options} 
+              whatsappNumber={settings?.whatsappNumber || ""} 
+            />
               
-              {/* Info Blocks - Fabric & Shipping */}
-              <div className="grid grid-cols-2 gap-8 py-8 border-t border-gray-100">
-                <div className="space-y-3">
-                  <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Fabric & Care</h4>
-                  <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
-                    Main: 100% Pure Raw Silk<br/>
-                    Dupatta: Silk Organza<br/>
-                    Dry Clean Only
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Shipping Info</h4>
-                  <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
-                    Dispatched in 7-10 business days.<br/>
-                    Free worldwide shipping on orders above Rs. 50,000.
-                  </p>
-                </div>
+            {/* Info Blocks - Fabric & Shipping */}
+            <div className="grid grid-cols-2 gap-4 sm:gap-8 py-6 sm:py-8 border-t border-gray-100">
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Fabric & Care</h4>
+                <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
+                  Main: 100% Pure Raw Silk<br/>
+                  Dupatta: Silk Organza<br/>
+                  Dry Clean Only
+                </p>
+              </div>
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Shipping Info</h4>
+                <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
+                  Dispatched in 7-10 business days.<br/>
+                  Free worldwide shipping on orders above Rs. 50,000.
+                </p>
               </div>
             </div>
           </div>
@@ -142,8 +151,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
         {/* RELATED PRODUCTS - Complete the Look */}
         {relatedProducts.length > 0 && (
-          <div className="mt-32 pt-20 border-t border-gray-100">
-            <div className="flex items-end justify-between mb-12">
+          <div className="mt-16 sm:mt-24 md:mt-32 pt-12 sm:pt-16 md:pt-20 border-t border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 sm:mb-12">
                <div className="space-y-1">
                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Curation</p>
                  <h2 className="text-3xl font-serif text-gray-900">Complete the Look</h2>
@@ -157,12 +166,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                {relatedProducts.map((item: any) => (
                  <Link key={item._id} href={`/product/${item.slug?.current || item._id}`} className="group space-y-4">
                     <div className="aspect-[3/4] bg-gray-50 rounded-xl overflow-hidden relative">
-                       <Image 
-                         src={item.images?.[0] ? urlFor(item.images[0]).width(400).url() : ""} 
+                       {item.images?.[0] ? (
+                       <CdnImage 
+                         src={urlFor(item.images[0]).width(400).auto('format').quality(82).url()} 
                          alt={item.title} 
                          fill 
+                         sizes="(max-width: 768px) 50vw, 25vw"
                          className="object-cover transition-transform duration-700 group-hover:scale-105"
                        />
+                       ) : (
+                       <Image src="/placeholder.svg" alt="" fill className="object-cover" />
+                       )}
                     </div>
                     <div>
                        <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">{item.title}</h3>
@@ -175,59 +189,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         )}
       </main>
 
-      {/* Footer - Keep it but ensuring it doesn't break the new style */}
-      <footer className="bg-white border-t border-gray-100 py-24 pb-12 px-6 mt-auto">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
-            <div className="space-y-6">
-              <Link href="/" className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-black flex items-center justify-center rounded-xl">
-                  <ShoppingBag className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-lg font-bold tracking-tight text-gray-900 uppercase">{settings?.storeName || "My Store"}</span>
-              </Link>
-              <p className="text-sm font-medium text-gray-400 leading-relaxed max-w-xs uppercase tracking-widest text-[10px]">
-                Excellence in handcrafted fashion. Designed for the technical curator.
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Store Navigation</h4>
-              <nav className="flex flex-col gap-4">
-                <Link href="/" className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">New Arrivals</Link>
-                <Link href="/admin/products" className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Collections</Link>
-                <Link href="/cart" className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Shopping Bag</Link>
-              </nav>
-            </div>
-
-            <div className="space-y-6">
-              <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Protocols</h4>
-              <nav className="flex flex-col gap-4">
-                <Link href="/" className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Shipping Logic</Link>
-                <Link href="/" className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Returns Policy</Link>
-                <Link href="/" className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Privacy Protocol</Link>
-              </nav>
-            </div>
-
-            <div className="space-y-6">
-              <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Contact Dispatch</h4>
-              <p className="text-xs font-medium text-gray-400 leading-relaxed uppercase tracking-widest text-[10px]">
-                Global operations handled from our central design laboratory.
-              </p>
-              <div className="flex items-center gap-4">
-                 <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                 <span className="text-[9px] font-bold text-gray-900 uppercase tracking-[0.2em] leading-none">Operations Live</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-12 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">
-              &copy; {new Date().getFullYear()} {settings?.storeName?.toUpperCase() || "MY STORE"}. ALL RIGHTS RESERVED.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer storeName={settings?.storeName} />
     </div>
   )
 }

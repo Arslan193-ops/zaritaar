@@ -25,9 +25,6 @@ export function SettingsForm({
   const [previews, setPreviews] = useState({
     desktop: initialSettings?.desktopHeroImage || "",
     mobile: initialSettings?.mobileHeroImage || "",
-    feature1: initialSettings?.featureImage1 || "",
-    feature2: initialSettings?.featureImage2 || "",
-    feature3: initialSettings?.featureImage3 || "",
     logo: initialSettings?.logoUrl || "",
     logoDark: initialSettings?.logoDarkUrl || "",
   })
@@ -277,59 +274,6 @@ export function SettingsForm({
                   <div className="space-y-2">
                      <label className="text-sm font-semibold text-gray-700">Button Link</label>
                      <Input name="heroButtonLink" defaultValue={initialSettings?.heroButtonLink || ""} placeholder="/products" className="h-11 border-gray-300" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Feature Images */}
-              <div className="space-y-6">
-                <h2 className="text-lg font-semibold text-gray-900">Feature Categories</h2>
-                
-                <div className="grid grid-cols-3 gap-6">
-                  {/* F1 */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-semibold text-gray-700">Grid Left (Large)</label>
-                    <label className="block w-full h-[220px] bg-slate-50 border border-gray-200 hover:border-black rounded-lg overflow-hidden cursor-pointer shadow-sm relative group">
-                      {previews.feature1 ? (
-                        <img src={previews.feature1} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
-                           <UploadCloud className="w-6 h-6" />
-                           <span className="text-xs font-semibold">Upload Image 1</span>
-                        </div>
-                      )}
-                      <input type="file" name="feature1File" className="hidden" accept="image/*" onChange={e => handleFileChange(e, 'feature1')} />
-                    </label>
-                  </div>
-                  {/* F2 */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-semibold text-gray-700">Grid Top Right</label>
-                    <label className="block w-full h-[220px] bg-slate-50 border border-gray-200 hover:border-black rounded-lg overflow-hidden cursor-pointer shadow-sm relative group">
-                      {previews.feature2 ? (
-                        <img src={previews.feature2} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
-                           <UploadCloud className="w-6 h-6" />
-                           <span className="text-xs font-semibold">Upload Image 2</span>
-                        </div>
-                      )}
-                      <input type="file" name="feature2File" className="hidden" accept="image/*" onChange={e => handleFileChange(e, 'feature2')} />
-                    </label>
-                  </div>
-                  {/* F3 */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-semibold text-gray-700">Grid Bottom Right</label>
-                    <label className="block w-full h-[220px] bg-slate-50 border border-gray-200 hover:border-black rounded-lg overflow-hidden cursor-pointer shadow-sm relative group">
-                      {previews.feature3 ? (
-                        <img src={previews.feature3} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
-                           <UploadCloud className="w-6 h-6" />
-                           <span className="text-xs font-semibold">Upload Image 3</span>
-                        </div>
-                      )}
-                      <input type="file" name="feature3File" className="hidden" accept="image/*" onChange={e => handleFileChange(e, 'feature3')} />
-                    </label>
                   </div>
                 </div>
               </div>

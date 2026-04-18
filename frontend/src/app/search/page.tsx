@@ -1,9 +1,11 @@
 import Header from "@/components/storefront/Header"
 import Image from "next/image"
+import { CdnImage } from "@/components/storefront/CdnImage"
 import Link from "next/link"
 import { getStoreSettings } from "@/lib/settings"
 import { searchStoreProducts } from "@/lib/storefront-actions"
 import { ShoppingBag, Search as SearchIcon } from "lucide-react"
+import Footer from "@/components/storefront/Footer"
 
 export default async function SearchPage({
   searchParams,
@@ -47,13 +49,18 @@ export default async function SearchPage({
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-12">
               {products.map((product: any) => (
                 <Link key={product.id} href={`/product/${product.id}`} className="group block space-y-4">
-                  <div className="aspect-[3/4] bg-gray-50 overflow-hidden relative transition-all duration-500">
-                    <Image 
-                      src={product.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop'} 
+                  <div className="aspect-[3/4] bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 shadow-sm transition-all duration-500">
+                    {product.imageUrl ? (
+                    <CdnImage 
+                      src={product.imageUrl} 
                       alt={product.title}
                       fill
+                      sizes="(max-width: 768px) 50vw, 20vw"
                       className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
                     />
+                    ) : (
+                    <Image src="/placeholder.svg" alt="" fill className="object-cover" />
+                    )}
                     {product.variants?.length > 1 && (
                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md px-3 py-1.5 text-[9px] font-bold tracking-[0.2em] text-black opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
                          + {product.variants.length} COLORS
@@ -66,7 +73,7 @@ export default async function SearchPage({
                       {product.title}
                     </h3>
                     <p className="text-[12px] font-medium tracking-wide text-gray-500 group-hover:text-black transition-colors">
-                       ${product.basePrice?.toFixed(2) || '0.00'}
+                       Rs. {product.basePrice?.toLocaleString() || '0'}
                     </p>
                   </div>
                 </Link>
@@ -74,6 +81,7 @@ export default async function SearchPage({
             </div>
           )}
       </div>
+      <Footer storeName={settings?.storeName} />
     </div>
   )
 }

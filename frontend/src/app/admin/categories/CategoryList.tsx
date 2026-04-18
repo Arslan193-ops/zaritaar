@@ -124,19 +124,19 @@ export default function CategoryList({
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredCategories.length === 0 ? (
-                <tr>
+                <tr key="empty">
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-400 font-medium italic">
                     No matching categories found.
                   </td>
                 </tr>
               ) : (
                 filteredCategories.map((cat) => (
-                  <tr key={cat.id} className={`group hover:bg-slate-50/50 transition-colors ${selectedIds.includes(cat.id) ? 'bg-slate-50/80' : ''}`}>
+                  <tr key={cat._id || cat.id} className={`group hover:bg-slate-50/50 transition-colors ${selectedIds.includes(cat._id || cat.id) ? 'bg-slate-50/80' : ''}`}>
                     <td className="px-6 py-4 text-center">
                       <input 
                         type="checkbox" 
-                        checked={selectedIds.includes(cat.id)}
-                        onChange={() => toggleSelect(cat.id)}
+                        checked={selectedIds.includes(cat._id || cat.id)}
+                        onChange={() => toggleSelect(cat._id || cat.id)}
                         className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                       />
                     </td>
@@ -166,7 +166,7 @@ export default function CategoryList({
                       </div>
                     </td>
                     <td className="px-6 py-4 font-mono text-xs text-slate-400">
-                      /{cat.slug}
+                      /{cat.slug?.current || cat.slug}
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-slate-50 text-slate-500 border border-slate-100">

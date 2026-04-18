@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createOrder } from "./actions"
 import Header from "@/components/storefront/Header"
+import Footer from "@/components/storefront/Footer"
 import Image from "next/image"
+import { CdnImage } from "@/components/storefront/CdnImage"
 
 export default function CartPage() {
   const [cart, setCart] = useState<any[]>([])
@@ -81,20 +83,24 @@ export default function CartPage() {
             {/* Bag Items Selection */}
             <div className="lg:col-span-8 space-y-6">
               {cart.map((item, i) => (
-                <div key={i} className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 flex gap-6 md:gap-10 group relative transition-all hover:shadow-xl hover:shadow-gray-200/50 duration-500">
-                  <div className="w-24 h-32 md:w-44 md:h-56 bg-gray-50 rounded-2xl overflow-hidden shadow-inner relative flex-shrink-0">
-                    <Image 
-                      src={item.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop'} 
+                <div key={i} className="bg-white rounded-3xl border border-gray-100 p-5 md:p-8 flex flex-col sm:flex-row gap-6 md:gap-10 group relative transition-all hover:shadow-xl hover:shadow-gray-200/50 duration-500">
+                  <div className="w-full sm:w-44 aspect-[3/4] sm:h-56 bg-gray-50 rounded-2xl overflow-hidden shadow-inner relative flex-shrink-0">
+                    {item.imageUrl ? (
+                    <CdnImage 
+                      src={item.imageUrl} 
                       alt={item.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
+                    ) : (
+                    <Image src="/placeholder.svg" alt="" fill className="object-cover" />
+                    )}
                   </div>
                   <div className="flex-1 flex flex-col justify-between py-2">
                     <div className="space-y-6">
                       <div className="flex justify-between items-start gap-4">
                         <div className="space-y-4">
-                          <h3 className="text-lg md:text-xl font-bold text-gray-900 leading-tight">{item.title}</h3>
+                          <h3 className="text-lg md:text-xl font-bold text-gray-900 leading-tight tracking-tight">{item.title}</h3>
                           <div className="flex flex-wrap gap-x-6 gap-y-2">
                             {item.selections ? (
                               Object.entries(item.selections).map(([key, val]) => (
@@ -133,7 +139,7 @@ export default function CartPage() {
                           <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <p className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter">${(Number(item.price) * (item.quantity || 1)).toFixed(2)}</p>
+                      <p className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter">Rs. {(Number(item.price) * (item.quantity || 1)).toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -156,11 +162,11 @@ export default function CartPage() {
                 <div className="space-y-6">
                   <div className="flex justify-between items-center group">
                     <span className="text-sm font-medium text-gray-500 group-hover:text-gray-900 transition-colors">Subtotal</span>
-                    <span className="text-base font-bold text-gray-900">${subtotal.toFixed(2)}</span>
+                    <span className="text-base font-bold text-gray-900">Rs. {subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center group">
                     <span className="text-sm font-medium text-gray-500 group-hover:text-gray-900 transition-colors">Shipping</span>
-                    <span className="text-xs font-bold text-green-600 uppercase tracking-widest">Complimentary</span>
+                    <span className="text-xs font-bold text-gray-900 uppercase tracking-widest italic text-green-600">Complimentary</span>
                   </div>
 
                   <div className="pt-6 space-y-4">
@@ -170,9 +176,9 @@ export default function CartPage() {
                         value={promoCode}
                         onChange={e => setPromoCode(e.target.value)}
                         placeholder="ENTER CODE" 
-                        className="flex-1 h-12 bg-gray-50 border border-gray-100 rounded-xl px-4 text-xs font-bold uppercase tracking-widest outline-none focus:border-[#059669] transition-all placeholder:text-gray-200"
+                        className="flex-1 h-12 bg-gray-50 border border-gray-100 rounded-xl px-4 text-xs font-bold uppercase tracking-widest outline-none focus:border-black transition-all placeholder:text-gray-200"
                       />
-                      <button className="h-12 px-6 bg-gray-100 hover:bg-[#059669] hover:text-white text-gray-900 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all">
+                      <button className="h-12 px-6 bg-gray-100 hover:bg-black hover:text-white text-gray-900 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all">
                         Apply
                       </button>
                     </div>
@@ -180,8 +186,8 @@ export default function CartPage() {
 
                   <div className="pt-10 border-t border-gray-100 flex justify-between items-end">
                     <div className="space-y-1">
-                      <span className="text-sm font-medium text-gray-500">Order Total</span>
-                      <p className="text-4xl font-black text-gray-900 tracking-tighter leading-none">${total.toFixed(2)}</p>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Order Total</span>
+                      <p className="text-2xl md:text-5xl font-black text-gray-900 tracking-tighter leading-none">Rs. {total.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -189,7 +195,7 @@ export default function CartPage() {
                 <div className="space-y-8 pt-4">
                   <Link href="/checkout">
                     <button 
-                      className="w-full h-16 bg-[#059669] hover:bg-[#047857] text-white font-bold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-[#059669]/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3" 
+                      className="w-full h-16 bg-black hover:bg-neutral-800 text-white font-bold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-black/10 transition-all active:scale-[0.98] flex items-center justify-center gap-3" 
                     >
                       Checkout Now <ArrowRight className="w-4 h-4" />
                     </button>
@@ -206,7 +212,7 @@ export default function CartPage() {
         )}
       </main>
 
-      <footer className="h-24" />
+      <Footer />
     </div>
   )
 }

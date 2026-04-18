@@ -4,20 +4,22 @@ import { useState, useEffect } from "react"
 import { createProduct, updateProduct, getCategories } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { UploadCloud, Plus, Trash2, X, TableIcon, Settings2, Loader2, Save } from "lucide-react"
+import { UploadCloud, Plus, Trash2, X, Ruler, Settings2, Loader2, Save, TableIcon } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { urlFor } from "@/lib/sanity"
+import { compressImage } from "@/lib/image-utils"
 
 export function ProductForm({ product }: { product?: any }) {
   const router = useRouter()
   const [categories, setCategories] = useState<any[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [images, setImages] = useState<{ file?: File, preview: string, id?: string }[]>(
+  const [images, setImages] = useState<{ file?: File, preview: string, id?: string, assetId?: string | null }[]>(
     product?.images?.map((img: any) => ({ 
       preview: typeof img === 'string' ? img : (img.asset ? urlFor(img).url() : ""), 
-      id: img._key || img.id 
+      id: img._key || img.id,
+      assetId: img.asset?._ref || null 
     })) || []
   )
   
@@ -35,33 +37,24 @@ export function ProductForm({ product }: { product?: any }) {
     }
   })
 
-  const [sizeChart, setSizeChart] = useState(() => {
-    try {
-      return product?.sizeChart ? JSON.parse(product.sizeChart) : {
-        headers: [
-          { text: "Size", bold: true },
-          { text: "Chest", bold: true },
-          { text: "Length", bold: true }
-        ],
-        rows: [
-          [{ text: "S", bold: true }, { text: "", bold: false }, { text: "", bold: false }],
-          [{ text: "M", bold: true }, { text: "", bold: false }, { text: "", bold: false }],
-          [{ text: "L", bold: true }, { text: "", bold: false }, { text: "", bold: false }]
-        ]
-      }
-    } catch (e) {
-      return {
-        headers: [
-          { text: "Size", bold: true }, { text: "Chest", bold: true }, { text: "Length", bold: true }
-        ],
-        rows: [
-          [{ text: "S", bold: true }, { text: "", bold: false }, { text: "", bold: false }],
-          [{ text: "M", bold: true }, { text: "", bold: false }, { text: "", bold: false }],
-          [{ text: "L", bold: true }, { text: "", bold: false }, { text: "", bold: false }]
-        ]
+  const [sizeChartImages, setSizeChartImages] = useState<{ file?: File, preview: string, id?: string, assetId?: string | null }[]>(
+    () => {
+      try {
+        if (!product?.sizeChart) return []
+        const parsed = JSON.parse(product.sizeChart)
+        if (Array.isArray(parsed)) {
+          return parsed.map((item: any, idx: number) => ({
+            preview: typeof item === 'string' ? item : (item.url || ""),
+            assetId: item.asset?._ref || item.assetId || null,
+            id: item._key || item.id || `sc_${idx}`
+          }))
+        }
+        return []
+      } catch (e) {
+        return []
       }
     }
-  })
+  )
 
   const [variants, setVariants] = useState<any[]>(
     product?.variants?.length > 0 
@@ -102,13 +95,29 @@ export function ProductForm({ product }: { product?: any }) {
     setImages(newImages.filter((_, i) => i !== index))
   }
 
+  const handleSizeChartFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    const newImages = files.map(file => ({
+      file,
+      preview: URL.createObjectURL(file)
+    }))
+    setSizeChartImages([...sizeChartImages, ...newImages])
+  }
+
+  const removeSizeChartImage = (index: number) => {
+    const newImages = [...sizeChartImages]
+    if (newImages[index].preview.startsWith('blob:')) {
+      URL.revokeObjectURL(newImages[index].preview)
+    }
+    setSizeChartImages(newImages.filter((_, i) => i !== index))
+  }
+
   const toggleCategory = (id: string) => {
     setSelectedCategoryIds(prev => 
       prev.includes(id) ? prev.filter(cId => cId !== id) : [...prev, id]
     )
   }
 
-  // RESTORED LOGIC FOR ATTRIBUTES & VARIANTS
   const addAttribute = () => {
     setAttributes([...attributes, { name: "New Attribute", values: [] }])
   }
@@ -181,29 +190,30 @@ export function ProductForm({ product }: { product?: any }) {
     setVariants(newVariants)
   }
 
-  const addChartColumn = () => {
-    const name = window.prompt("Enter Column Header Name:")
-    if (!name) return
+  const handleBulkApply = (field: string, value: string) => {
+    if (!value && field !== "stock") return
     
-    setSizeChart((prev: any) => ({
-      headers: [...prev.headers, { text: name, bold: true }],
-      rows: prev.rows.map((row: any) => [...row, { text: "", bold: false }])
-    }))
+    setVariants(prev => prev.map(v => ({
+      ...v,
+      [field]: field === "stock" ? (parseInt(value) || 0) : value
+    })))
+    
+    toast.info(`Bulk applied ${field} to all variations`)
   }
 
-  const addChartRow = () => {
-    setSizeChart((prev: any) => ({
-      headers: prev.headers,
-      rows: [...prev.rows, Array(prev.headers.length).fill({ text: "", bold: false })]
-    }))
-  }
-
-  const removeChartColumn = (index: number) => {
-    if (sizeChart.headers.length <= 1) return
-    setSizeChart((prev: any) => ({
-      headers: prev.headers.filter((_: any, i: number) => i !== index),
-      rows: prev.rows.map((row: any) => row.filter((_: any, i: number) => i !== index))
-    }))
+  const handleAutoSKUs = () => {
+    const titleBase = (document.getElementsByName("title")[0] as HTMLInputElement)?.value || "PROD"
+    const prefix = titleBase.toUpperCase().replace(/\s+/g, '-').substring(0, 10)
+    
+    const newVariants = variants.map(v => {
+      const attrValues = attributes.map(a => v[a.name]).filter(Boolean).join('-').toUpperCase()
+      return {
+        ...v,
+        sku: `${prefix}-${attrValues || Math.floor(Math.random() * 1000)}`
+      }
+    })
+    setVariants(newVariants)
+    toast.success("Unique SKUs generated for all variations")
   }
 
   async function handleSubmit(formData: FormData) {
@@ -211,7 +221,21 @@ export function ProductForm({ product }: { product?: any }) {
     setError(null)
     
     formData.append("attributes", JSON.stringify(attributes))
-    formData.append("sizeChart", JSON.stringify(sizeChart))
+    
+    // Process Size Chart Images
+    const existingCharts = sizeChartImages.filter(img => !img.file).map(img => ({
+      _key: img.id,
+      assetId: img.assetId,
+      url: img.preview
+    }))
+    formData.append("existingSizeChartInfo", JSON.stringify(existingCharts))
+    
+    for (const img of sizeChartImages) {
+      if (img.file) {
+        const compressed = await compressImage(img.file)
+        formData.append("sizeChartFiles", compressed)
+      }
+    }
 
     const cleanVariants = variants.map(v => {
       const attrKeys = Object.keys(v).filter(k => !['id', 'sku', 'price', 'discountedPrice', 'stock', 'imageUrl'].includes(k))
@@ -233,16 +257,26 @@ export function ProductForm({ product }: { product?: any }) {
       formData.set("categoryId", selectedCategoryIds[0])
     }
     
-    images.forEach((img) => {
-      if (img.file) formData.append("imageFiles", img.file)
-    })
+    const existing = images.filter(img => !img.file).map(img => ({
+      _key: img.id,
+      assetId: img.assetId,
+      preview: img.preview
+    }))
+    formData.append("existingImages", JSON.stringify(existing))
+    
+    for (const img of images) {
+      if (img.file) {
+        const compressed = await compressImage(img.file)
+        formData.append("imageFiles", compressed)
+      }
+    }
 
     try {
       const result = product?.id 
         ? await updateProduct(product.id, formData)
         : await createProduct(formData)
 
-      if (result.success) {
+      if (result && result.success) {
         toast.success(product ? "Product updated successfully" : "Product created successfully")
         router.push("/admin/products")
         router.refresh()
@@ -272,11 +306,27 @@ export function ProductForm({ product }: { product?: any }) {
         <div className="p-8 border-b border-gray-200">
           <h2 className="text-xl font-semibold mb-6">Basic Details</h2>
           
-          <div className="grid grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-2 gap-6 mb-8">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-800">Product Title</label>
               <Input name="title" required defaultValue={product?.title || ""} className="h-11 shadow-sm border-gray-300 rounded-md focus:ring-black focus:border-black" />
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-800">Product Status</label>
+              <div className="flex gap-4 pt-1">
+                <label className="flex flex-1 items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-all has-[:checked]:bg-black has-[:checked]:text-white has-[:checked]:border-black">
+                  <input type="radio" name="status" value="PUBLISHED" defaultChecked={product?.status !== "DRAFT"} className="hidden" />
+                  <span className="text-sm font-bold uppercase tracking-wider">Active</span>
+                </label>
+                <label className="flex flex-1 items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-all has-[:checked]:bg-black has-[:checked]:text-white has-[:checked]:border-black">
+                  <input type="radio" name="status" value="DRAFT" defaultChecked={product?.status === "DRAFT"} className="hidden" />
+                  <span className="text-sm font-bold uppercase tracking-wider">Draft</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 mb-6">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-800">Slug (URL)</label>
               <Input name="slug" defaultValue={product?.slug || ""} className="h-11 shadow-sm border-gray-300 rounded-md focus:ring-black focus:border-black" />
@@ -365,67 +415,32 @@ export function ProductForm({ product }: { product?: any }) {
           </div>
         </div>
 
+        {/* Dynamic Multi-Image Size Chart Section */}
         <div className="p-8 border-b border-gray-200 bg-gray-50/30">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-               <TableIcon className="w-5 h-5 text-gray-500" /> Size Guide Matrix
+               <Ruler className="w-5 h-5 text-gray-500" /> Size Chart Images
             </h2>
-            <div className="flex gap-2">
-               <button type="button" onClick={addChartColumn} className="text-xs font-semibold text-gray-600 px-3 py-1.5 hover:text-gray-900 border border-gray-300 rounded-md bg-white shadow-sm">+ Col</button>
-               <button type="button" onClick={addChartRow} className="text-xs font-semibold text-gray-600 px-3 py-1.5 hover:text-gray-900 border border-gray-300 rounded-md bg-white shadow-sm">+ Row</button>
-            </div>
           </div>
-          <div className="border border-gray-200 bg-white rounded-md overflow-x-auto shadow-sm">
-             <table className="w-full border-collapse">
-                <thead>
-                   <tr className="bg-gray-50 border-b border-gray-200">
-                      {sizeChart.headers.map((h: any, i: number) => (
-                        <th key={i} className="p-3 border-r border-gray-200 min-w-[120px]">
-                           <div className="flex items-center gap-2">
-                              <input 
-                                value={h.text} 
-                                onChange={e => {
-                                  const newH = [...sizeChart.headers]; 
-                                  newH[i].text = e.target.value; 
-                                  setSizeChart({...sizeChart, headers: newH})
-                                }} 
-                                className="w-full bg-transparent text-sm font-semibold focus:outline-none" 
-                              />
-                              <button type="button" onClick={() => removeChartColumn(i)} className="text-gray-400 hover:text-red-500 transition-all">
-                                 <X className="w-4 h-4" />
-                              </button>
-                           </div>
-                        </th>
-                      ))}
-                      <th className="w-10"></th>
-                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                   {sizeChart.rows.map((row: any, ri: number) => (
-                     <tr key={ri}>
-                        {row.map((cell: any, ci: number) => (
-                          <td key={ci} className="p-2 border-r border-gray-100">
-                             <input 
-                               value={cell.text} 
-                               onChange={e => {
-                                 const newR = [...sizeChart.rows]; 
-                                 newR[ri][ci].text = e.target.value; 
-                                 setSizeChart({...sizeChart, rows: newR})
-                               }} 
-                               className="w-full text-sm font-medium p-1 focus:outline-none focus:bg-gray-50 rounded" 
-                             />
-                          </td>
-                        ))}
-                        <td className="p-2 text-center">
-                           <button type="button" onClick={() => setSizeChart({...sizeChart, rows: sizeChart.rows.filter((_:any,i:number) => i !== ri)})} className="text-gray-400 hover:text-red-500">
-                             <Trash2 className="w-4 h-4" />
-                           </button>
-                        </td>
-                     </tr>
-                   ))}
-                </tbody>
-             </table>
+          <div className="flex flex-wrap gap-4 pt-2">
+            <label className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-500 hover:bg-white cursor-pointer transition-all shadow-sm bg-gray-50/50">
+              <UploadCloud className="w-6 h-6 mb-2" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-center px-4 leading-[1.3]">Add Chart Image</span>
+              <input type="file" multiple name="sizeChartFiles" accept="image/*" className="hidden" onChange={handleSizeChartFileChange} />
+            </label>
+            
+            {sizeChartImages.map((img, i) => (
+              <div key={i} className="w-32 h-32 relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white p-2">
+                <img src={img.preview} alt="" className="w-full h-full object-contain" />
+                <button type="button" onClick={() => removeSizeChartImage(i)} className="absolute top-1 right-1 w-6 h-6 bg-black/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500">
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
           </div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-6">
+             Upload one or more images of your size charts. These will be shown in the storefront guide.
+          </p>
         </div>
 
         <div className="p-8 border-b border-gray-200 space-y-8 bg-gray-50/30">
@@ -486,9 +501,61 @@ export function ProductForm({ product }: { product?: any }) {
           </div>
 
           <div className="space-y-4">
-             <div className="flex items-center gap-2">
-                <Plus className="w-5 h-5 text-gray-500" />
-                <h2 className="text-lg font-semibold text-gray-900">2. Manage Variations</h2>
+             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="flex items-center gap-2">
+                   <Plus className="w-5 h-5 text-gray-500" />
+                   <h2 className="text-lg font-semibold text-gray-900">2. Manage Variations</h2>
+                </div>
+                
+                {variants.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl shadow-sm">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold uppercase text-gray-400 px-1">Bulk Price</span>
+                      <Input 
+                        id="bulk-price"
+                        placeholder="Price" 
+                        type="number" 
+                        className="h-8 w-24 text-xs" 
+                        onKeyDown={e => e.key === 'Enter' && handleBulkApply('price', e.currentTarget.value)}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold uppercase text-gray-400 px-1">Bulk Stock</span>
+                      <Input 
+                        id="bulk-stock"
+                        placeholder="Stock" 
+                        type="number" 
+                        className="h-8 w-20 text-xs" 
+                        onKeyDown={e => e.key === 'Enter' && handleBulkApply('stock', e.currentTarget.value)}
+                      />
+                    </div>
+                    <div className="flex items-end gap-2 pt-4">
+                      <Button 
+                        type="button" 
+                        size="sm" 
+                        variant="secondary" 
+                        className="h-8 text-[11px] font-bold px-4"
+                        onClick={() => {
+                          const p = (document.getElementById('bulk-price') as HTMLInputElement).value;
+                          const s = (document.getElementById('bulk-stock') as HTMLInputElement).value;
+                          if(p) handleBulkApply('price', p);
+                          if(s) handleBulkApply('stock', s);
+                        }}
+                      >
+                         Apply All
+                      </Button>
+                      <Button 
+                        type="button" 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-8 text-[11px] font-bold px-4 border-slate-200"
+                        onClick={handleAutoSKUs}
+                      >
+                         Auto SKUs
+                      </Button>
+                    </div>
+                  </div>
+                )}
              </div>
              
              {variants.length === 0 ? (
@@ -513,11 +580,11 @@ export function ProductForm({ product }: { product?: any }) {
                         <tr key={i} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3">
                              <div className="flex flex-wrap gap-1">
-                                {attributes.map((attr: any) => (
-                                  <span key={attr.name} className="px-2 py-0.5 bg-gray-100 border border-gray-200 text-xs font-semibold text-gray-700 rounded-md inline-block">
-                                    {v[attr.name]}
-                                  </span>
-                                ))}
+                                 {attributes.map((attr: any) => (
+                                   <span key={attr.name} className="px-2 py-0.5 bg-gray-100 border border-gray-200 text-xs font-semibold text-gray-700 rounded-md inline-block">
+                                     {v[attr.name]}
+                                   </span>
+                                 ))}
                              </div>
                           </td>
                           <td className="px-4 py-2">
