@@ -231,7 +231,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
           </div>
 
           {/* Logo - Desktop: Left, Mobile: Center */}
-          <div className="flex-1 lg:flex-none lg:static absolute left-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0">
+          <div className="flex-1 lg:static absolute left-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0">
             <Link href="/" className="group flex items-center gap-2 md:gap-3">
               {currentSettings?.logoUrl ? (
                 <div className="relative h-8 w-24 md:h-10 md:w-32">
