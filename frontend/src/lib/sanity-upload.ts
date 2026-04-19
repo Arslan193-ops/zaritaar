@@ -1,4 +1,4 @@
-import { client } from "./sanity"
+import { client, urlFor } from "./sanity"
 
 /**
  * Uploads a single file to Sanity and returns the asset ID.
@@ -41,11 +41,11 @@ export async function uploadMultipleFilesToSanity(formData: FormData, fieldName:
 export function getSanityUrl(assetId: string): string {
   if (!assetId) return ""
   
-  // Format: image-assetId-dimensions-extension -> https://cdn.sanity.io/images/projectId/dataset/assetId-dimensions.extension
-  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "x5f1k8p3" // Fallback if needed, but should be in env
-  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production"
-  
-  // assetId looks like "image-70233480fe372c3d5e2361ac4a8637651a1a5b82-200x200-png"
-  const cleanId = assetId.replace('image-', '').replace(/-([^-]+)$/, '.$1')
-  return `https://cdn.sanity.io/images/${projectId}/${dataset}/${cleanId}`
+  try {
+    // Using the official Sanity Image URL builder
+    return urlFor(assetId).url() || "";
+  } catch (error) {
+    console.error("SANITY_URL_GEN_ERROR:", error);
+    return "";
+  }
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import imageCompression from "browser-image-compression"
 import { updateStoreSettings, updateShippingMethods } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,19 +22,28 @@ export function SettingsForm({
   // Tab 2 State
   const [shippingMethods, setShippingMethods] = useState(initialShipping || [])
 
+  // Helper to filter out legacy local uploads that no longer exist (cause 404s)
+  const sanitizePath = (url?: string | null) => {
+    if (!url) return "";
+    if (url.startsWith("/uploads/")) return ""; // Clear legacy paths
+    return url;
+  };
+
   // Basic reusable hook for file previews
   const [previews, setPreviews] = useState({
-    desktop: initialSettings?.desktopHeroImage || "",
-    mobile: initialSettings?.mobileHeroImage || "",
-    logo: initialSettings?.logoUrl || "",
-    logoDark: initialSettings?.logoDarkUrl || "",
+    desktop: sanitizePath(initialSettings?.desktopHeroImage),
+    mobile: sanitizePath(initialSettings?.mobileHeroImage),
+    logo: sanitizePath(initialSettings?.logoUrl),
+    logoDark: sanitizePath(initialSettings?.logoDarkUrl),
   })
 
   // Slider State (Array of file-like objects for the UI)
   const [sliderImages, setSliderImages] = useState<{ id: string, url: string, file?: File }[]>(() => {
     try {
       const existing = JSON.parse(initialSettings?.heroSliderImages || "[]")
-      return existing.map((url: string, i: number) => ({ id: `existing-${i}`, url }))
+      return existing
+        .map((url: string, i: number) => ({ id: `existing-${i}`, url: sanitizePath(url) }))
+        .filter((item: any) => item.url !== "") // Remove empty legacy paths
     } catch { return [] }
   })
 
@@ -59,7 +69,7 @@ export function SettingsForm({
   }
 
   const removeMethod = (index: number) => {
-    setShippingMethods(shippingMethods.filter((_, i) => i !== index))
+    setShippingMethods(shippingMethods.filter((_: any, i: number) => i !== index))
   }
 
   const addSliderImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,6 +108,21 @@ export function SettingsForm({
      setAnnouncements(announcements.filter((_, i) => i !== index))
   }
 
+  const compressImage = async (file: File) => {
+    const options = {
+      maxSizeMB: 2,
+      maxWidthOrHeight: 2048,
+      useWebWorker: true,
+      fileType: "image/webp" as const,
+    };
+    try {
+      return await imageCompression(file, options);
+    } catch (error) {
+      console.error("Compression error:", error);
+      return file; // Fallback to original
+    }
+  };
+
   // Submission handler based on Tab
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -113,14 +138,27 @@ export function SettingsForm({
         // Handle General / Order / Branding pages
         const payload = new FormData(e.currentTarget)
         
-        // Append slider images info
-        sliderImages.forEach((img, index) => {
-           if (img.file) {
-              payload.append(`sliderFile_${index}`, img.file)
-           } else {
-              payload.append(`existingSliderUrl_${index}`, img.url)
+        // COMPRESSION FOR STANDALONE IMAGES
+        const fileFields = ['logoFile', 'logoDarkFile', 'desktopHeroImageFile', 'mobileHeroImageFile'];
+        for (const field of fileFields) {
+           const file = payload.get(field) as File | null;
+           if (file && file.size > 0 && file.name !== "undefined") {
+              const compressed = await compressImage(file);
+              payload.set(field, compressed, file.name.split('.')[0] + '.webp');
            }
-        })
+        }
+
+        // COMPRESSION FOR SLIDER IMAGES
+        for (let i = 0; i < sliderImages.length; i++) {
+           const img = sliderImages[i];
+           if (img.file) {
+              const compressed = await compressImage(img.file);
+              payload.append(`sliderFile_${i}`, compressed, img.file.name.split('.')[0] + '.webp');
+           } else {
+              payload.append(`existingSliderUrl_${i}`, img.url);
+           }
+        }
+        
         payload.append("sliderCount", sliderImages.length.toString())
         payload.append("announcementsText", JSON.stringify(announcements))
 
