@@ -1,11 +1,8 @@
-"use server"
-
 import { revalidatePath } from "next/cache"
 import prisma from "@/lib/prisma"
-import fs from "fs"
-import path from "path"
 import { getSession } from "@/lib/auth"
 import { hasPermission, PERMISSIONS } from "@/lib/permissions"
+import { uploadFileToSanity, getSanityUrl } from "@/lib/sanity-upload"
 
 export async function updateStoreSettings(formData: FormData) {
   try {
@@ -48,18 +45,11 @@ export async function updateStoreSettings(formData: FormData) {
     if (enableScrollingAnnouncements !== undefined) updates.enableScrollingAnnouncements = enableScrollingAnnouncements
     if (announcementsText !== undefined) updates.announcementsText = announcementsText
 
-    // Helper for local OS filesystem uploading
+    // Helper for Sanity Cloud uploading
     const attemptUpload = async (file: File | null) => {
       if (file && file.size > 0 && file.name !== "undefined") {
-        const uploadDir = path.join(process.cwd(), "public", "uploads")
-        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true })
-        
-        const buffer = Buffer.from(await file.arrayBuffer())
-        const filename = `setting-${Date.now()}-${Math.random().toString(36).substring(7)}${path.extname(file.name)}`
-        const filepath = path.join(uploadDir, filename)
-        fs.writeFileSync(filepath, buffer)
-
-        return `/uploads/${filename}`
+        const assetId = await uploadFileToSanity(file)
+        return assetId ? getSanityUrl(assetId) : undefined
       }
       return undefined
     }

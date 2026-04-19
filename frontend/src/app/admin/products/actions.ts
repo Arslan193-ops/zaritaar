@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 import { getSession } from "@/lib/auth"
 import { hasPermission, PERMISSIONS } from "@/lib/permissions"
 import { client } from "@/lib/sanity"
+import { uploadMultipleFilesToSanity, getSanityUrl } from "@/lib/sanity-upload"
 
 export async function getCategories() {
   return await prisma.category.findMany({
@@ -119,10 +120,10 @@ export async function createProduct(formData: FormData) {
     })
 
     // 1. Upload Product Images to Sanity
-    const imageAssetIds = await handleImageUploadsToSanity(formData, "imageFiles")
+    const imageAssetIds = await uploadMultipleFilesToSanity(formData, "imageFiles")
     
     // 2. Upload Size Chart Images to Sanity
-    const sizeChartAssetIds = await handleImageUploadsToSanity(formData, "sizeChartFiles")
+    const sizeChartAssetIds = await uploadMultipleFilesToSanity(formData, "sizeChartFiles")
     
     // 3. Update Product in Sanity
     const sanityProduct = await client.create({
@@ -140,12 +141,12 @@ export async function createProduct(formData: FormData) {
       showColorSelector,
       freeShipping,
       isFeatured,
-      images: imageAssetIds.map((id, index) => ({
+      images: imageAssetIds.map((id: string, index: number) => ({
         _key: `img_${Date.now()}_${index}`,
         _type: 'image',
         asset: { _type: 'reference', _ref: id }
       })),
-      sizeCharts: sizeChartAssetIds.map((id, index) => ({
+      sizeCharts: sizeChartAssetIds.map((id: string, index: number) => ({
         _key: `sc_${Date.now()}_${index}`,
         _type: 'image',
         asset: { _type: 'reference', _ref: id }
@@ -154,7 +155,7 @@ export async function createProduct(formData: FormData) {
     })
 
     // 4. Final Sync to Prisma with URLs
-    const sizeChartUrls = sizeChartAssetIds.map(id => `https://cdn.sanity.io/images/${client.config().projectId}/${client.config().dataset}/${id.replace('image-', '').replace(/-([^-]+)$/, '.$1')}`)
+    const sizeChartUrls = sizeChartAssetIds.map((id: string) => getSanityUrl(id))
     
     await prisma.product.update({
       where: { id: product.id },
@@ -238,8 +239,8 @@ export async function updateProduct(id: string, formData: FormData) {
     console.log("UPDATE_SUCCESSFUL:", id)
 
     // Handle NEW images to Sanity
-    const imageAssetIds = await handleImageUploadsToSanity(formData, "imageFiles")
-    const sizeChartAssetIds = await handleImageUploadsToSanity(formData, "sizeChartFiles")
+    const imageAssetIds = await uploadMultipleFilesToSanity(formData, "imageFiles")
+    const sizeChartAssetIds = await uploadMultipleFilesToSanity(formData, "sizeChartFiles")
     
     // Resolve existing images
     const existingImagesJson = formData.get("existingImages") as string
@@ -271,7 +272,7 @@ export async function updateProduct(id: string, formData: FormData) {
             _type: 'image',
             asset: { _ref: img.assetId, _type: 'reference' }
           })).filter((img: any) => !!img.asset._ref),
-          ...imageAssetIds.map((assetId, index) => ({
+          ...imageAssetIds.map((assetId: string, index: number) => ({
             _key: `img_new_${Date.now()}_${index}`,
             _type: 'image',
             asset: { _ref: assetId, _type: 'reference' }
@@ -283,7 +284,7 @@ export async function updateProduct(id: string, formData: FormData) {
             _type: 'image',
             asset: { _ref: img.assetId, _type: 'reference' }
           })).filter((img: any) => img.asset?._ref),
-          ...sizeChartAssetIds.map((assetId, index) => ({
+          ...sizeChartAssetIds.map((assetId: string, index: number) => ({
             _key: `sc_new_${Date.now()}_${index}`,
             _type: 'image',
             asset: { _ref: assetId, _type: 'reference' }
@@ -293,7 +294,7 @@ export async function updateProduct(id: string, formData: FormData) {
       .commit()
 
     // Build the final size chart URL list for Prisma sync
-    const newScUrls = sizeChartAssetIds.map(assetId => `https://cdn.sanity.io/images/${client.config().projectId}/${client.config().dataset}/${assetId.replace('image-', '').replace(/-([^-]+)$/, '.$1')}`)
+    const newScUrls = sizeChartAssetIds.map((assetId: string) => getSanityUrl(assetId))
     const finalScUrls = [...existingCharts.map((c: any) => c.url), ...newScUrls]
 
     await prisma.product.update({
