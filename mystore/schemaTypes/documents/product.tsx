@@ -56,6 +56,20 @@ export const productType = defineType({
       group: 'shopifySync',
     }),
     defineField({
+      name: 'artistry',
+      title: 'Artistry & Fabric Details',
+      type: 'text',
+      description: 'Hand-crafted details and fabric composition (for the dropdown).',
+      group: 'editorial',
+    }),
+    defineField({
+      name: 'shippingInfo',
+      title: 'Shipping Info',
+      type: 'text',
+      description: 'Specific shipping or return notes for this product.',
+      group: 'editorial',
+    }),
+    defineField({
       name: 'seo',
       title: 'SEO',
       type: 'seo',

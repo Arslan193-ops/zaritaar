@@ -231,7 +231,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
           </div>
 
           {/* Logo - Desktop: Left, Mobile: Center */}
-          <div className="flex-1 lg:static absolute left-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0">
+          <div className="flex-1 lg:flex-none lg:static absolute left-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0">
             <Link href="/" className="group flex items-center gap-2 md:gap-3">
               {currentSettings?.logoUrl ? (
                 <div className="relative h-8 w-24 md:h-10 md:w-32">
@@ -240,6 +240,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                      alt={currentSettings?.storeName || "Logo"} 
                      fill 
                      className="object-contain lg:object-left object-center"
+                     priority
                    />
                 </div>
               ) : (
@@ -251,8 +252,8 @@ export default function HeaderClient({ settings }: { settings?: any }) {
             </Link>
           </div>
 
-          {/* Nav - Desktop Only */}
-          <nav className="hidden lg:flex items-center justify-center gap-6 flex-1 px-8">
+          {/* Nav - Desktop Only - Perfectly Centered */}
+          <nav className="hidden lg:flex items-center justify-center gap-8 absolute left-1/2 -translate-x-1/2 h-full">
             <Link href="/shop" className="text-[11px] font-bold uppercase tracking-widest text-gray-600 hover:text-black transition-all">Shop All</Link>
             {categories.map((cat) => (
               <Link key={cat.id} href={`/category/${cat.slug}`} className="text-[11px] font-bold uppercase tracking-wider text-gray-600 hover:text-black transition-all">{cat.name}</Link>
@@ -297,22 +298,22 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                  </button>
               </div>
               
-              <nav className="flex flex-col gap-8">
+              <nav className="flex flex-col gap-6">
                 <Link 
                   href="/shop" 
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-2xl font-black uppercase tracking-tight text-gray-900 flex items-center justify-between group"
+                  className="text-base font-black uppercase tracking-widest text-gray-900 flex items-center justify-between group border-b border-gray-50 pb-4"
                 >
-                  Shop All <ArrowRight className="w-5 h-5 opacity-20 group-hover:opacity-100 transition-all" />
+                  Shop All <ArrowRight className="w-4 h-4 opacity-30" />
                 </Link>
                 {categories.map((cat) => (
                   <Link 
                     key={cat.id} 
                     href={`/category/${cat.slug}`}
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-2xl font-black uppercase tracking-tight text-gray-900 flex items-center justify-between group"
+                    className="text-base font-black uppercase tracking-widest text-gray-900 flex items-center justify-between group border-b border-gray-50 pb-4"
                   >
-                    {cat.name} <ArrowRight className="w-5 h-5 opacity-20 group-hover:opacity-100 transition-all" />
+                    {cat.name} <ArrowRight className="w-4 h-4 opacity-30" />
                   </Link>
                 ))}
               </nav>

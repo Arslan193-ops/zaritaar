@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Check, ShoppingBag, MessageCircle, Zap, ArrowRight, Ruler, X } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { 
   Sheet, 
   SheetContent, 
@@ -100,25 +101,25 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8 md:space-y-10">
-      {/* Attribute Selectors - Minimal Square Style */}
+    <div className="space-y-8 sm:space-y-10">
+      {/* Attribute Selectors - Minimal Registry Style */}
       {Object.entries(options).map(([attrName, values]) => (
-        <div key={attrName} className="space-y-3">
+        <div key={attrName} className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">{attrName}</h3>
+            <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em]">{attrName} — <span className="text-gray-400 font-medium">{selections[attrName]}</span></h3>
             {attrName.toLowerCase() === "size" && (
                <Sheet>
                  <SheetTrigger 
                    render={
                      <button className="text-[9px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1 hover:text-black transition-all border-b border-gray-200 hover:border-black cursor-pointer">
-                        <Ruler className="w-3 h-3" /> Size Guide
+                        Size Guide
                      </button>
                    }
                  />
                  <SheetContent side="right" className="w-[90vw] sm:w-[540px] p-0 border-l border-gray-100">
                     <div className="h-full flex flex-col bg-white">
                       <SheetHeader className="p-8 border-b border-gray-100">
-                        <SheetTitle className="text-xl font-black uppercase tracking-tight">Standard Size Guide</SheetTitle>
+                        <SheetTitle className="text-xl font-serif">Standard Size Guide</SheetTitle>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Measurements in Inches</p>
                       </SheetHeader>
                       <div className="flex-1 overflow-y-auto p-8">
@@ -155,34 +156,6 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
                               return <p className="text-xs text-red-500">Error loading size chart</p>
                             }
                           })()}
-
-                          <div className="bg-gray-50 p-6 rounded-3xl space-y-4">
-                             <h4 className="text-[11px] font-black uppercase tracking-widest text-gray-900">How to Measure?</h4>
-                             <div className="space-y-3">
-                                <div>
-                                   <p className="text-[10px] font-bold uppercase text-gray-900">Chest</p>
-                                   <p className="text-xs text-gray-500 leading-relaxed">Measure under your arms, around the fullest part of your chest.</p>
-                                </div>
-                                <div>
-                                   <p className="text-[10px] font-bold uppercase text-gray-900">Waist</p>
-                                   <p className="text-xs text-gray-500 leading-relaxed">Measure around your natural waistline, keeping the tape a bit loose.</p>
-                                </div>
-                             </div>
-                          </div>
-
-                          <div className="bg-emerald-50/50 p-6 rounded-3xl space-y-4 border border-emerald-100/50 mt-6">
-                             <h4 className="text-[11px] font-black uppercase tracking-widest text-emerald-800">Still Unsure?</h4>
-                             <p className="text-[10px] text-emerald-700/80 leading-relaxed font-medium">
-                               Our experts are available to guide you with the perfect fit.
-                             </p>
-                             <a 
-                               href={`https://wa.me/${whatsappNumber}?text=Hi, I need help with sizing for this product: ${product.title}`}
-                               target="_blank"
-                               className="flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-md shadow-emerald-200"
-                             >
-                                <MessageCircle className="w-3.5 h-3.5" /> Chat via WhatsApp
-                             </a>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -190,83 +163,68 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
                </Sheet>
             )}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {values.map(val => (
-              <button
-                key={val}
-                onClick={() => setSelections({...selections, [attrName]: val})}
-                className={`w-12 h-12 flex items-center justify-center text-[10px] font-bold border transition-all uppercase rounded-xl ${selections[attrName] === val ? 'bg-black text-white border-black' : 'bg-white text-gray-500 border-gray-200 hover:border-black hover:text-black'}`}
-              >
-                {val}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-4">
+            {values.map(val => {
+              const isColor = attrName.toLowerCase() === "color" || attrName.toLowerCase() === "colour"
+              return (
+                <button
+                  key={val}
+                  onClick={() => setSelections({...selections, [attrName]: val})}
+                  className={cn(
+                    "transition-all duration-300 relative flex items-center justify-center",
+                    isColor 
+                      ? "w-8 h-8 rounded-full border-2 p-0.5" 
+                      : "min-w-[40px] px-2 py-1 text-[11px] font-bold uppercase tracking-widest border-b-2 hover:border-black",
+                    selections[attrName] === val 
+                      ? (isColor ? "border-black scale-110" : "border-black text-black") 
+                      : (isColor ? "border-gray-200 opacity-80" : "border-transparent text-gray-400 hover:text-black")
+                  )}
+                >
+                  {isColor ? (
+                    <div 
+                      className="w-full h-full rounded-full border border-black/5" 
+                      style={{ backgroundColor: val.toLowerCase().replace(" ", "") }}
+                      title={val}
+                    />
+                  ) : (
+                    val
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
       ))}
 
-      {/* Quantity & Actions Block */}
-      <div className="space-y-6 pt-2">
-        <div className="space-y-3">
-          <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">Quantity</h3>
-          <div className="flex items-center w-32 h-10 border border-gray-200 rounded-full overflow-hidden">
-             <button 
-               onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-               className="w-10 h-full flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-50 transition-all font-light text-xl"
-             >
-               -
-             </button>
-             <div className="flex-1 h-full flex items-center justify-center bg-white">
-               <input 
-                 type="number" 
-                 value={quantity} 
-                 readOnly
-                 className="w-full text-center text-xs font-bold focus:outline-none bg-transparent text-gray-900"
-               />
-             </div>
-             <button 
-               onClick={() => setQuantity(prev => prev + 1)}
-               className="w-10 h-full flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-50 transition-all font-light text-xl"
-             >
-               +
-             </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Add to Cart - Luxury Outline */}
+      {/* Actions Block */}
+      <div className="space-y-4 pt-6">
+        <div className="flex flex-col gap-3">
           <button 
             onClick={() => handleAddToCart()} 
             disabled={adding}
-            className="h-14 bg-white text-gray-900 border-2 border-gray-900 font-black text-[10px] uppercase tracking-[0.25em] transition-all hover:bg-neutral-50 active:scale-[0.98] flex items-center justify-center gap-2 rounded-full"
+            className="w-full h-14 bg-slate-900 text-white font-bold text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-black active:scale-[0.98] flex items-center justify-center gap-3 rounded-lg shadow-lg shadow-slate-100"
           >
              {adding ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
-             {adding ? "In Bag" : "Add to Cart"}
+             {adding ? "Added to Bag" : "Add to Bag"}
           </button>
 
-          {/* Buy it Now - Solid Black */}
           <button 
             onClick={handleBuyNow}
-            className="h-14 bg-black text-white font-black text-[10px] uppercase tracking-[0.25em] transition-all hover:bg-neutral-800 active:scale-[0.98] flex items-center justify-center gap-2 rounded-full"
+            className="w-full h-14 bg-white text-slate-900 border border-slate-200 font-bold text-[10px] uppercase tracking-[0.2em] transition-all hover:border-slate-900 hover:bg-slate-50 active:scale-[0.98] flex items-center justify-center rounded-lg"
           >
-             {adding ? <Check className="w-4 h-4 animate-pulse text-white" /> : <ArrowRight className="w-4 h-4" />}
-             Buy it Now
+             Shop Instantly
           </button>
         </div>
 
-        {/* WhatsApp Checkout - Brand Green */}
+        {/* WhatsApp Inquiry - Bordered Action Button */}
         <div className="pt-2">
           <button 
             onClick={handleWhatsAppOrder}
-            className="w-full h-14 bg-[#25D366] text-white font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:opacity-90 active:scale-[0.98] flex flex-col items-center justify-center rounded-full shadow-sm"
+            className="w-full h-14 border border-emerald-100 bg-emerald-50/10 text-emerald-700 font-bold text-[9px] uppercase tracking-[0.2em] transition-all hover:bg-emerald-50 active:scale-[0.98] flex items-center justify-center gap-2 rounded-lg"
           >
-            <div className="flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 fill-white text-[#25D366]" />
-              WhatsApp Order
-            </div>
+             <MessageCircle className="w-4 h-4 text-emerald-500" />
+             Inquiry via WhatsApp
           </button>
-          <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest text-center mt-3">
-             Quick Checkout via Whatsapp Chat
-          </p>
         </div>
       </div>
     </div>

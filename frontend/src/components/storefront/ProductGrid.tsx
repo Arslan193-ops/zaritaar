@@ -67,9 +67,9 @@ export default function ProductGrid({ products }: ProductGridProps) {
           <Link 
             key={product._id || product.id} 
             href={`/product/${product._id || product.id}`} 
-            className="group block p-3 sm:p-4 bg-white border border-gray-200 rounded-[2rem] transition-all duration-500 hover:shadow-2xl hover:border-gray-300 shadow-sm"
+            className="group block p-2 bg-white border border-gray-100 rounded-2xl transition-all duration-500 hover:shadow-xl hover:border-gray-200 shadow-sm"
           >
-            <div className="aspect-[4/5] bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-50 transition-all duration-500 group-hover:scale-[1.02]">
+            <div className="aspect-[2/3] bg-gray-50 rounded-xl overflow-hidden relative border border-gray-50 transition-all duration-500 group-hover:scale-[1.02]">
               {product.images?.[0] || product.imageUrl ? (
               <CdnImage 
                 src={
@@ -92,8 +92,8 @@ export default function ProductGrid({ products }: ProductGridProps) {
                 className="object-cover"
               />
               )}
-              <div className="absolute top-2 left-2 sm:top-4 sm:left-4">
-                <span className="bg-black text-white px-2 py-0.5 sm:px-3 sm:py-1 text-[8px] sm:text-[10px] font-bold tracking-wider uppercase shadow-sm">
+              <div className="absolute top-2 left-2">
+                <span className="bg-black/90 backdrop-blur-sm text-white px-2 py-0.5 text-[8px] font-bold tracking-wider uppercase rounded-sm shadow-sm">
                   {product.category?.name || 'Limited'}
                 </span>
               </div>
