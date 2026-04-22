@@ -1,19 +1,31 @@
-import Header from "@/components/storefront/Header"
+import { notFound } from "next/navigation"
+import prisma from "@/lib/prisma"
+import Image from "next/image"
+import Link from "next/link"
 import { getStoreSettings } from "@/lib/settings"
 import { getStoreProducts } from "@/lib/storefront-actions"
 import CategoryFilter from "@/components/storefront/CategoryFilter"
 import ProductGrid from "@/components/storefront/ProductGrid"
 import { ShoppingBag, LayoutGrid } from "lucide-react"
-import Footer from "@/components/storefront/Footer"
-import Link from "next/link"
 
-export default async function ShopPage({
+export default async function CategoryPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ slug: string }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const { slug } = await params
   const resolvedSearchParams = await searchParams
   
+  const category = await prisma.category.findUnique({
+    where: { slug }
+  })
+
+  if (!category) {
+    notFound()
+  }
+
   // Parse Filters
   const sort = typeof resolvedSearchParams.sort === 'string' ? resolvedSearchParams.sort : "newest"
   const min = typeof resolvedSearchParams.min === 'string' && resolvedSearchParams.min ? parseFloat(resolvedSearchParams.min) : undefined
@@ -21,6 +33,7 @@ export default async function ShopPage({
   const inStock = resolvedSearchParams.inStock === "true"
 
   const products = await getStoreProducts({
+    categoryId: category.id,
     sort,
     min,
     max,
@@ -30,22 +43,26 @@ export default async function ShopPage({
   const settings = await getStoreSettings()
 
   return (
-    <div className="min-h-screen bg-[#FDFCF9] flex flex-col font-sans selection:bg-black selection:text-white">
-      <Header settings={settings} />
-
-      {/* Global Shop Header */}
+    <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-black selection:text-white">
+      {/* Category Banner */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 lg:py-20 flex flex-col items-center text-center">
-           <div className="inline-flex items-center gap-2 py-1 px-3 bg-black/5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-6 font-mono">
-              Official Catalog v1.0
-           </div>
-           <h1 className="text-2xl md:text-7xl font-serif font-black text-gray-900 tracking-tighter mb-4 italic leading-tight">
-             All Products
-           </h1>
-           <p className="max-w-xl text-[11px] font-bold uppercase tracking-[0.25em] text-gray-400 leading-relaxed">
-             Meticulously engineered garments for the modern технический. <br/> 
-             Full collection deployment.
+           {category.imageUrl && (
+              <div className="w-16 h-16 md:w-24 md:h-24 rounded-full overflow-hidden relative mb-6 shadow-sm">
+                <Image src={category.imageUrl} alt={category.name} fill className="object-cover" />
+              </div>
+           )}
+           <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em] mb-4">
+              Curated Collection
            </p>
+           <h1 className="text-3xl md:text-5xl font-serif text-gray-900 mb-6">
+             {category.name}
+           </h1>
+           {category.description && (
+             <p className="max-w-xl text-sm text-gray-500 leading-relaxed font-medium mx-auto">
+               {category.description}
+             </p>
+           )}
         </div>
       </div>
 
@@ -61,7 +78,7 @@ export default async function ShopPage({
                <div className="flex items-center gap-2">
                  <LayoutGrid className="w-4 h-4 text-gray-900" />
                  <span className="text-[11px] font-black tracking-[0.2em] uppercase text-gray-900">
-                   Showing <span className="underline decoration-2 underline-offset-4">{products.length}</span> Masterpieces
+                   Showing <span className="text-black">{products.length}</span> Products
                  </span>
                </div>
             </div>
@@ -71,18 +88,17 @@ export default async function ShopPage({
                 <ShoppingBag className="w-12 h-12 text-gray-100 mb-6" />
                 <h3 className="text-[14px] font-black text-gray-900 mb-2 uppercase tracking-[0.2em]">No Matches Found</h3>
                 <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-8 max-w-[240px] mx-auto leading-relaxed">
-                  The current parameters yielded zero results in the registry.
+                  Try adjusting your price range or sorting options.
                 </p>
-                <Link href="/shop" className="text-[10px] font-black uppercase tracking-[0.3em] text-black border-2 border-black px-8 py-3 hover:bg-black hover:text-white transition-all rounded-xl">
-                   Reset Registry
+                <Link href={`/category/${slug}`} className="text-[10px] font-black uppercase tracking-[0.3em] text-black border-2 border-black px-8 py-3 hover:bg-black hover:text-white transition-all rounded-xl">
+                   Clear Filters
                 </Link>
               </div>
             ) : (
-              <ProductGrid products={products} />
+              <ProductGrid products={products} hasSidebar={true} />
             )}
          </main>
       </div>
-      <Footer storeName={settings?.storeName} />
     </div>
   )
 }

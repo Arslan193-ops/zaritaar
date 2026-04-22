@@ -1,0 +1,84 @@
+import { getStoreSettings } from "@/lib/settings"
+import { getStoreProducts } from "@/lib/storefront-actions"
+import CategoryFilter from "@/components/storefront/CategoryFilter"
+import ProductGrid from "@/components/storefront/ProductGrid"
+import { ShoppingBag, LayoutGrid } from "lucide-react"
+import Link from "next/link"
+
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const resolvedSearchParams = await searchParams
+  
+  // Parse Filters
+  const sort = typeof resolvedSearchParams.sort === 'string' ? resolvedSearchParams.sort : "newest"
+  const min = typeof resolvedSearchParams.min === 'string' && resolvedSearchParams.min ? parseFloat(resolvedSearchParams.min) : undefined
+  const max = typeof resolvedSearchParams.max === 'string' && resolvedSearchParams.max ? parseFloat(resolvedSearchParams.max) : undefined
+  const inStock = resolvedSearchParams.inStock === "true"
+
+  const products = await getStoreProducts({
+    sort,
+    min,
+    max,
+    inStock
+  })
+
+  const settings = await getStoreSettings()
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-black selection:text-white">
+      {/* Global Shop Header */}
+
+      {/* Global Shop Header */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 lg:py-20 flex flex-col items-center text-center">
+           <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em] mb-4">
+              The Collection
+           </p>
+           <h1 className="text-3xl md:text-5xl font-serif text-gray-900 mb-6">
+             All Products
+           </h1>
+           <p className="max-w-xl text-sm text-gray-500 leading-relaxed font-medium mx-auto">
+             Explore our complete range of meticulously crafted pieces, designed for the modern wardrobe.
+           </p>
+        </div>
+      </div>
+
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-16">
+         {/* Sidebar / Drawer Filters */}
+         <aside className="w-full lg:w-[260px] shrink-0">
+            <CategoryFilter />
+         </aside>
+
+         {/* Product Grid */}
+         <main className="flex-1">
+            <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 pt-1 lg:pt-0">
+               <div className="flex items-center gap-2">
+                 <LayoutGrid className="w-4 h-4 text-gray-900" />
+                 <span className="text-[11px] font-black tracking-[0.2em] uppercase text-gray-900">
+                   Showing <span className="text-black">{products.length}</span> Products
+                 </span>
+               </div>
+            </div>
+
+            {products.length === 0 ? (
+              <div className="text-center py-24 bg-white rounded-3xl border border-gray-100 flex flex-col items-center shadow-sm">
+                <ShoppingBag className="w-12 h-12 text-gray-100 mb-6" />
+                <h3 className="text-[14px] font-black text-gray-900 mb-2 uppercase tracking-[0.2em]">No Matches Found</h3>
+                <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-8 max-w-[240px] mx-auto leading-relaxed">
+                  The current parameters yielded zero results in the registry.
+                </p>
+                <Link href="/shop" className="text-[10px] font-black uppercase tracking-[0.3em] text-black border-2 border-black px-8 py-3 hover:bg-black hover:text-white transition-all rounded-xl">
+                   Reset Registry
+                </Link>
+              </div>
+            ) : (
+              <ProductGrid products={products} hasSidebar={true} />
+            )}
+         </main>
+      </div>
+    </div>
+  )
+}

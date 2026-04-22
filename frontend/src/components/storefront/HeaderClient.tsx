@@ -176,8 +176,8 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                               className="flex items-center gap-4 group hover:bg-black hover:text-white p-2 -mx-2 rounded-2xl transition-all duration-300"
                             >
                               <div className="w-10 h-14 bg-gray-100 relative overflow-hidden shrink-0 rounded-xl">
-                                {product.imageUrl ? (
-                                <CdnImage src={product.imageUrl} alt={product.title} fill sizes="40px" className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                                {product.image ? (
+                                <CdnImage source={product.image} alt={product.title} fill sizes="40px" className="object-cover group-hover:scale-110 transition-transform duration-700" />
                                 ) : (
                                 <Image src="/placeholder.svg" alt="" fill className="object-cover" />
                                 )}
@@ -236,7 +236,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
               {currentSettings?.logoUrl ? (
                 <div className="relative h-8 w-24 md:h-10 md:w-32">
                    <CdnImage 
-                     src={currentSettings.logoUrl} 
+                     source={currentSettings.logoUrl} 
                      alt={currentSettings?.storeName || "Logo"} 
                      fill 
                      className="object-contain lg:object-left object-center"
@@ -245,8 +245,8 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                 </div>
               ) : (
                 <div className="flex flex-col items-center lg:items-start leading-tight">
-                  <span className="text-sm md:text-xl font-light tracking-[0.15em] text-black transition-all group-hover:tracking-[0.2em]">{currentSettings?.storeName || "PEZWAAN"}</span>
-                  <span className="text-[5px] md:text-[7px] tracking-[0.25em] text-gray-500 uppercase">Clothing Brand</span>
+                  <span className="text-sm md:text-xl font-bold tracking-[0.2em] text-[#D4AF37] transition-all group-hover:tracking-[0.25em]">ZARITAAR</span>
+                  <span className="text-[5px] md:text-[7px] tracking-[0.3em] text-gray-500 uppercase font-bold">The Gold Standard</span>
                 </div>
               )}
             </Link>
@@ -360,7 +360,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                      <div key={idx} className="flex gap-4 group">
                         <div className="w-20 h-28 bg-gray-50 rounded-xl overflow-hidden relative shrink-0">
                            {item.image ? (
-                             <CdnImage src={item.image} alt={item.title} fill className="object-cover" />
+                             <CdnImage source={item.image} alt={item.title} fill className="object-cover" />
                            ) : (
                              <div className="absolute inset-0 flex items-center justify-center text-gray-200"><ShoppingBag className="w-6 h-6" /></div>
                            )}

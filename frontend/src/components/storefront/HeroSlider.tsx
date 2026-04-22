@@ -53,7 +53,7 @@ export default function HeroSlider({
           className="absolute inset-0 z-0"
         >
           <CdnImage
-            src={images[currentIndex]}
+            source={images[currentIndex]}
             alt={`Slide ${currentIndex + 1}`}
             fill
             sizes="100vw"

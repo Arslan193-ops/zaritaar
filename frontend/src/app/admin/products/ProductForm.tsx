@@ -17,7 +17,7 @@ export function ProductForm({ product }: { product?: any }) {
   const [error, setError] = useState<string | null>(null)
   const [images, setImages] = useState<{ file?: File, preview: string, id?: string, assetId?: string | null }[]>(
     product?.images?.map((img: any) => ({ 
-      preview: typeof img === 'string' ? img : (img.asset ? urlFor(img).url() : ""), 
+      preview: typeof img === 'string' ? img : (img.asset ? urlFor(img).auto('format').url() : ""), 
       id: img._key || img.id,
       assetId: img.asset?._ref || null 
     })) || []

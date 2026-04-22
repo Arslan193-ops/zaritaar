@@ -1,11 +1,9 @@
-import Header from "@/components/storefront/Header"
 import Image from "next/image"
 import { CdnImage } from "@/components/storefront/CdnImage"
 import Link from "next/link"
 import { getStoreSettings } from "@/lib/settings"
 import { searchStoreProducts } from "@/lib/storefront-actions"
 import { ShoppingBag, Search as SearchIcon } from "lucide-react"
-import Footer from "@/components/storefront/Footer"
 
 export default async function SearchPage({
   searchParams,
@@ -20,7 +18,7 @@ export default async function SearchPage({
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans selection:bg-black selection:text-white">
-      <Header settings={settings} />
+      {/* Hero Section */}
 
       {/* Hero Section */}
       <div className="bg-white border-b border-gray-100">
@@ -50,9 +48,9 @@ export default async function SearchPage({
               {products.map((product: any) => (
                 <Link key={product.id} href={`/product/${product.id}`} className="group block space-y-4">
                   <div className="aspect-[3/4] bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 shadow-sm transition-all duration-500">
-                    {product.imageUrl ? (
+                    {product.image ? (
                     <CdnImage 
-                      src={product.imageUrl} 
+                      source={product.image} 
                       alt={product.title}
                       fill
                       sizes="(max-width: 768px) 50vw, 20vw"
@@ -81,7 +79,6 @@ export default async function SearchPage({
             </div>
           )}
       </div>
-      <Footer storeName={settings?.storeName} />
     </div>
   )
 }

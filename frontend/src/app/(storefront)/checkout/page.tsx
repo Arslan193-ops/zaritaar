@@ -6,8 +6,6 @@ import { CheckCircle2, ShoppingBag, ShieldCheck, ArrowLeft, Lock, User, Truck, A
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createOrder } from "../cart/actions"
-import Header from "@/components/storefront/Header"
-import Footer from "@/components/storefront/Footer"
 import Image from "next/image"
 import { CdnImage } from "@/components/storefront/CdnImage"
 import { toast } from "sonner"
@@ -79,7 +77,6 @@ export default function CheckoutPage() {
   if (checkoutComplete) {
     return (
       <div className="min-h-screen bg-white flex flex-col font-sans">
-        <Header />
         <main className="flex-1 flex items-center justify-center p-8 animate-in zoom-in duration-700">
           <div className="max-w-2xl w-full bg-white border border-gray-100 p-16 text-center space-y-12">
             <div className="w-24 h-24 border border-gray-900 flex items-center justify-center mx-auto p-1">
@@ -110,8 +107,6 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans selection:bg-black selection:text-white">
-      <Header />
-      
       <main className="flex-1 max-w-7xl mx-auto px-6 py-12 md:py-24 w-full animate-in fade-in duration-700">
         {/* Checkout Header */}
         <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -247,10 +242,11 @@ export default function CheckoutPage() {
                   <div key={i} className="flex gap-4 items-center group">
                     <div className="w-16 h-20 bg-gray-50 rounded-xl overflow-hidden relative flex-shrink-0">
                       {item.imageUrl ? (
-                      <CdnImage 
+                      <Image 
                         src={item.imageUrl} 
                         alt={item.title}
                         fill
+                        unoptimized={true}
                         className="object-cover"
                       />
                       ) : (
@@ -322,7 +318,6 @@ export default function CheckoutPage() {
         </form>
       </main>
 
-      <Footer />
     </div>
   )
 }

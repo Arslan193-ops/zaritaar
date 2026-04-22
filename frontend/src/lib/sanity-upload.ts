@@ -43,7 +43,7 @@ export function getSanityUrl(assetId: string): string {
   
   try {
     // Using the official Sanity Image URL builder
-    return urlFor(assetId).url() || "";
+    return urlFor(assetId).auto('format').url() || "";
   } catch (error) {
     console.error("SANITY_URL_GEN_ERROR:", error);
     return "";

@@ -6,8 +6,6 @@ import { Trash2, ArrowRight, ShoppingBag, ArrowLeft, CheckCircle2, Minus, Plus, 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createOrder } from "./actions"
-import Header from "@/components/storefront/Header"
-import Footer from "@/components/storefront/Footer"
 import Image from "next/image"
 import { CdnImage } from "@/components/storefront/CdnImage"
 
@@ -48,8 +46,6 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans selection:bg-black selection:text-white">
-      <Header />
-      
       <main className="flex-1 max-w-7xl mx-auto px-6 py-12 md:py-24 w-full animate-in fade-in duration-700">
         {/* Header Section */}
         <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -86,10 +82,11 @@ export default function CartPage() {
                 <div key={i} className="bg-white rounded-3xl border border-gray-100 p-5 md:p-8 flex flex-col sm:flex-row gap-6 md:gap-10 group relative transition-all hover:shadow-xl hover:shadow-gray-200/50 duration-500">
                   <div className="w-full sm:w-44 aspect-[3/4] sm:h-56 bg-gray-50 rounded-2xl overflow-hidden shadow-inner relative flex-shrink-0">
                     {item.imageUrl ? (
-                    <CdnImage 
+                    <Image 
                       src={item.imageUrl} 
                       alt={item.title}
                       fill
+                      unoptimized={true}
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     ) : (
@@ -212,7 +209,6 @@ export default function CartPage() {
         )}
       </main>
 
-      <Footer />
     </div>
   )
 }

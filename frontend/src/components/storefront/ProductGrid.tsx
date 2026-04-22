@@ -1,116 +1,57 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { CdnImage } from "@/components/storefront/CdnImage"
-import { useRenderGuard } from "@/lib/debug-utils"
-import { LayoutGrid, Square, Grid2X2 } from "lucide-react"
-import { urlFor } from "@/lib/sanity"
+import { useRouter, useSearchParams } from "next/navigation"
+import { BaseProduct } from "@/lib/storefront-actions"
+import ProductCard from "./ProductCard"
+import { Square, Grid2X2 } from "lucide-react"
 
 interface ProductGridProps {
-  products: any[]
+  products: BaseProduct[]
+  hasSidebar?: boolean
 }
 
-export default function ProductGrid({ products }: ProductGridProps) {
-  useRenderGuard("ProductGrid", 30)
-  // 1 = single view (one per row), 2 = double view (two per row)
-  const [cols, setCols] = useState<1 | 2>(1)
-  const [mounted, setMounted] = useState(false)
+export default function ProductGrid({ products, hasSidebar = false }: ProductGridProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const view = searchParams.get("view") || "2"
 
-  useEffect(() => {
-    const saved = localStorage.getItem("product-view-cols")
-    if (saved === "2") setCols(2)
-    setMounted(true)
-  }, [])
-
-  const handleToggle = (num: 1 | 2) => {
-    setCols(num)
-    localStorage.setItem("product-view-cols", num.toString())
+  const handleViewChange = (newView: "1" | "2") => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("view", newView)
+    router.push(`?${params.toString()}`, { scroll: false })
   }
 
-  if (!mounted) return (
-     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        {products.map((p, idx) => (
-          <div key={p?._id || p?.id || `skeleton-${idx}`} className="aspect-[4/5] bg-gray-50 animate-pulse rounded-2xl" />
-        ))}
-     </div>
-  )
+  // Determine grid columns based on view type and whether a sidebar is taking up screen width
+  const gridClasses = view === "1" 
+    ? (hasSidebar ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4')
+    : (hasSidebar ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5')
 
   return (
     <div className="space-y-8">
-      {/* View Toggle Controls */}
-      <div className="flex items-center justify-end gap-1 border-b border-gray-100 pb-4">
-        <button 
-          onClick={() => handleToggle(1)}
-          className={`p-2 transition-all rounded-lg ${cols === 1 ? 'bg-black text-white shadow-lg' : 'text-gray-300 hover:text-black'}`}
-          title="Single View"
-        >
-          <Square className="w-4 h-4" />
-        </button>
-        <button 
-          onClick={() => handleToggle(2)}
-          className={`p-2 transition-all rounded-lg ${cols === 2 ? 'bg-black text-white shadow-lg' : 'text-gray-300 hover:text-black'}`}
-          title="Grid View"
-        >
-          <Grid2X2 className="w-4 h-4" />
-        </button>
+
+      <div className="flex items-center justify-end mb-8 pb-4 border-b border-gray-100">
+        <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-xl">
+          <button
+            onClick={() => handleViewChange("1")}
+            className={`p-2 transition-all rounded-lg ${view === "1" ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
+            title="Single/Wide View"
+          >
+            <Square className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleViewChange("2")}
+            className={`p-2 transition-all rounded-lg ${view === "2" ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
+            title="Dense Grid View"
+          >
+            <Grid2X2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      {/* Dynamic Product Grid */}
-      <div className={`grid gap-4 md:gap-8 transition-all duration-500 ${
-        cols === 1 
-          ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-          : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
-      }`}>
-        {products.map((product: any) => (
-          <Link 
-            key={product._id || product.id} 
-            href={`/product/${product._id || product.id}`} 
-            className="group block p-2 bg-white border border-gray-100 rounded-2xl transition-all duration-500 hover:shadow-xl hover:border-gray-200 shadow-sm"
-          >
-            <div className="aspect-[2/3] bg-gray-50 rounded-xl overflow-hidden relative border border-gray-50 transition-all duration-500 group-hover:scale-[1.02]">
-              {product.images?.[0] || product.imageUrl ? (
-              <CdnImage 
-                src={
-                  product.images?.[0]?.url || 
-                  (typeof product.images?.[0] === 'string' ? product.images[0] : null) ||
-                  product.imageUrl ||
-                  (product.images?.[0] ? urlFor(product.images[0]).width(cols === 1 ? 720 : 400).url() : '')
-                } 
-                alt={product.title}
-                fill
-                sizes={cols === 1 ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" : "(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 20vw"}
-                loading="lazy"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              ) : (
-              <Image 
-                src="/placeholder.svg"
-                alt=""
-                fill
-                className="object-cover"
-              />
-              )}
-              <div className="absolute top-2 left-2">
-                <span className="bg-black/90 backdrop-blur-sm text-white px-2 py-0.5 text-[8px] font-bold tracking-wider uppercase rounded-sm shadow-sm">
-                  {product.category?.name || 'Limited'}
-                </span>
-              </div>
-            </div>
 
-            <div className="flex flex-col items-center gap-1 mt-4 px-1 text-center">
-              <h3 className={`font-bold text-gray-900 group-hover:text-black transition-colors truncate w-full ${cols === 2 ? 'text-[11px] sm:text-sm' : 'text-sm'}`}>
-                {product.title}
-              </h3>
-              <div className="flex items-center justify-center gap-3 text-[9px] sm:text-xs">
-                {cols === 1 && <span className="text-gray-400 font-medium tracking-widest hidden sm:inline">REG {(product._id || product.id || "00").substring(0, 4)}</span>}
-                <span className={`font-black text-gray-900 ${cols === 2 ? 'text-[11px] sm:text-sm' : 'text-sm'}`}>
-                  Rs. {(product.basePrice || 0).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </Link>
+      <div className={`grid gap-3 md:gap-8 transition-all duration-500 ${gridClasses}`}>
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} view={view as "1" | "2"} />
         ))}
       </div>
     </div>

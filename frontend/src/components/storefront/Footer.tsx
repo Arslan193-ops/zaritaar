@@ -1,63 +1,73 @@
 "use client"
 
 import Link from "next/link"
-import { ShoppingBag } from "lucide-react"
 
 interface FooterProps {
   storeName?: string
 }
 
-export default function Footer({ storeName = "My Store" }: FooterProps) {
+export default function Footer({ storeName = "Zaritaar" }: FooterProps) {
+  const displayName = storeName === "My Store" ? "Zaritaar" : storeName;
+
   return (
-    <footer className="bg-black border-t border-gray-900 py-24 pb-12 px-6 mt-auto">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
+    <footer className="bg-black border-t border-gray-900 py-16 px-6 mt-auto">
+      <div className="max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20">
+          
+          {/* Brand Column */}
           <div className="space-y-6">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white flex items-center justify-center rounded-xl">
-                <ShoppingBag className="w-5 h-5 text-black" />
-              </div>
-              <span className="text-lg font-bold tracking-tight text-white uppercase">{storeName}</span>
+            <Link href="/" className="inline-block">
+              <span className="text-2xl font-serif text-white tracking-wide">{displayName}</span>
             </Link>
-            <p className="text-sm font-medium text-gray-500 leading-relaxed max-w-xs uppercase tracking-widest text-[10px]">
-              Excellence in handcrafted fashion. Designed for the technical curator.
+            <p className="text-gray-400 leading-relaxed max-w-xs text-xs font-medium">
+              Meticulously handcrafted in our ateliers. Heritage redefined for the modern connoisseur.
             </p>
           </div>
 
+          {/* Explore */}
           <div className="space-y-6">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Store Navigation</h4>
+            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Explore</h4>
             <nav className="flex flex-col gap-4">
-              <Link href="/" className="text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest">New Arrivals</Link>
-              <Link href="/shop" className="text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest">Collections</Link>
-              <Link href="/cart" className="text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest">Shopping Bag</Link>
+              <Link href="/shop" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">All Products</Link>
+              <Link href="/shop" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Collections</Link>
+              <Link href="/cart" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Shopping Bag</Link>
             </nav>
           </div>
 
+          {/* Customer Care */}
           <div className="space-y-6">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Protocols</h4>
+            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Customer Care</h4>
             <nav className="flex flex-col gap-4">
-              <Link href="/" className="text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest">Shipping Logic</Link>
-              <Link href="/" className="text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest">Returns Policy</Link>
-              <Link href="/" className="text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest">Privacy Protocol</Link>
+              <Link href="/" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Shipping & Returns</Link>
+              <Link href="/" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Track Order</Link>
+              <Link href="/" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Privacy Policy</Link>
             </nav>
           </div>
 
+          {/* The Atelier */}
           <div className="space-y-6">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Contact Dispatch</h4>
-            <p className="text-xs font-medium text-gray-500 leading-relaxed uppercase tracking-widest text-[10px]">
-              Global operations handled from our central design laboratory.
+            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">The Atelier</h4>
+            <p className="text-xs font-medium text-gray-400 leading-relaxed tracking-wide">
+              Global operations handled from our central design laboratory in Pakistan.
             </p>
-            <div className="flex items-center gap-4">
-               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-               <span className="text-[9px] font-bold text-white uppercase tracking-[0.2em] leading-none">Operations Live</span>
+            <div className="pt-2">
+               <a href="mailto:contact@zaritaar.com" className="text-xs font-bold text-white hover:text-gray-300 transition-colors uppercase tracking-widest border-b border-gray-700 pb-1">
+                 contact@zaritaar.com
+               </a>
             </div>
           </div>
+
         </div>
 
-        <div className="pt-12 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">
-            &copy; {new Date().getFullYear()} {storeName.toUpperCase()}. ALL RIGHTS RESERVED.
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-gray-900 flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em]">
+            &copy; {new Date().getFullYear()} {displayName.toUpperCase()}. ALL RIGHTS RESERVED.
           </p>
+          <div className="flex items-center gap-6">
+             <span className="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em]">Instagram</span>
+             <span className="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em]">Facebook</span>
+          </div>
         </div>
       </div>
     </footer>
