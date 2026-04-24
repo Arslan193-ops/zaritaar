@@ -25,6 +25,8 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "sonner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 
 export default async function RootLayout({
   children,
@@ -70,6 +72,8 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col font-sans">
         {children}
         <Toaster position="top-center" richColors closeButton />
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
