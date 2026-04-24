@@ -36,7 +36,7 @@ export default function NewUserPage() {
         passwordHash: formData.password,
         roleId: formData.roleId
       })
-      toast.success("User created successfully")
+      toast.success("New user profile created.")
       router.push("/admin/users")
       router.refresh()
     } catch (err: any) {

@@ -5,7 +5,7 @@ import Link from "next/link"
 import { CheckCircle2, ShoppingBag, ShieldCheck, ArrowLeft, Lock, User, Truck, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { createOrder } from "../cart/actions"
+import { createOrder } from "./actions"
 import Image from "next/image"
 import { CdnImage } from "@/components/storefront/CdnImage"
 import { toast } from "sonner"
@@ -40,7 +40,7 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault()
     if (cart.length === 0) {
-      toast.error("Your bag is empty")
+      toast.error("Your shopping bag is empty.")
       return
     }
     setIsSubmitting(true)
@@ -59,7 +59,7 @@ export default function CheckoutPage() {
         localStorage.removeItem('cart')
         setCart([])
         window.dispatchEvent(new Event('cartUpdated'))
-        toast.success("Order placed successfully!")
+        toast.success("Order placed successfully. Thank you.")
         setCheckoutComplete(true)
       } else {
         toast.error(res.error || "Error placing order.")
@@ -92,7 +92,7 @@ export default function CheckoutPage() {
             </div>
             <Link href="/">
               <button className="bg-black hover:bg-neutral-800 text-white px-12 py-5 font-black text-[10px] uppercase tracking-[0.4em] transition-all rounded-xl shadow-lg shadow-black/10">
-                Return to Registry
+                Return to Boutique
               </button>
             </Link>
           </div>
@@ -106,20 +106,15 @@ export default function CheckoutPage() {
   const total = subtotal + shipping
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans selection:bg-black selection:text-white">
-      <main className="flex-1 max-w-7xl mx-auto px-6 py-12 md:py-24 w-full animate-in fade-in duration-700">
+    <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-black selection:text-white">
+      <main className="flex-1 max-w-7xl mx-auto px-6 py-12 md:py-20 w-full animate-in fade-in duration-700">
         {/* Checkout Header */}
-        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 py-1 px-3 bg-black/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              Checkout Process
-            </div>
-            <h1 className="text-2xl md:text-5xl font-bold text-gray-900 tracking-tight">COMPLETE ORDER</h1>
+        <div className="mb-16">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <span className="w-8 h-[1px] bg-[#D4AF37]" />
+            <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em]">Order Overview</p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-bold text-gray-900 uppercase tracking-widest bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
-            <Lock className="w-3.5 h-3.5" />
-            Secure Transaction
-          </div>
+          <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 tracking-tight">Complete Order</h1>
         </div>
 
         <form onSubmit={handlePlaceOrder} className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-start">
@@ -127,47 +122,48 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 space-y-12">
             
             {/* Contact Information */}
-            <section className="bg-white p-8 md:p-10 rounded-3xl border border-gray-100 shadow-sm space-y-8">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
-                   <User className="w-5 h-5 text-gray-900" />
+            <section className="space-y-8">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                <h2 className="text-xl font-serif font-bold text-gray-900">Shipping Contact</h2>
+                <div className="flex items-center gap-2 text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                  <User className="w-3.5 h-3.5" />
+                  Step 01
                 </div>
-                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Shipping Contact</h2>
               </div>
               
-              <div className="grid gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Email Address <span className="text-red-500">*</span></label>
+              <div className="grid gap-5">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Email Address <span className="text-[#D4AF37]">*</span></label>
                   <input 
                     required 
                     type="email" 
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="Enter your email" 
-                    className="h-14 w-full bg-gray-50 border border-gray-100 rounded-xl px-6 text-sm font-bold text-gray-900 outline-none focus:border-gray-900 focus:bg-white transition-all"
+                    placeholder="E.g. customer@zaritaar.com" 
+                    className="h-12 w-full bg-transparent border-b-2 border-gray-100 px-1 text-sm font-bold text-gray-900 outline-none focus:border-[#D4AF37] transition-all placeholder:text-gray-200 placeholder:font-medium"
                   />
                 </div>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Full Name <span className="text-red-500">*</span></label>
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Full Name <span className="text-[#D4AF37]">*</span></label>
                     <input 
                       required 
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
                       placeholder="Your full name" 
-                      className="h-14 w-full bg-gray-50 border border-gray-100 rounded-xl px-6 text-sm font-bold text-gray-900 outline-none focus:border-gray-900 focus:bg-white transition-all"
+                      className="h-12 w-full bg-transparent border-b-2 border-gray-100 px-1 text-sm font-bold text-gray-900 outline-none focus:border-[#D4AF37] transition-all placeholder:text-gray-200 placeholder:font-medium"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Phone Number</label>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Phone Number</label>
                     <input 
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="+1 (000) 000-0000" 
-                      className="h-14 w-full bg-gray-50 border border-gray-100 rounded-xl px-6 text-sm font-bold text-gray-900 outline-none focus:border-gray-900 focus:bg-white transition-all"
+                      placeholder="+92 XXX XXXXXXX" 
+                      className="h-12 w-full bg-transparent border-b-2 border-gray-100 px-1 text-sm font-bold text-gray-900 outline-none focus:border-[#D4AF37] transition-all placeholder:text-gray-200 placeholder:font-medium"
                     />
                   </div>
                 </div>
@@ -175,142 +171,149 @@ export default function CheckoutPage() {
             </section>
 
             {/* Shipping Address */}
-            <section className="bg-white p-8 md:p-10 rounded-3xl border border-gray-100 shadow-sm space-y-8">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
-                   <Truck className="w-5 h-5 text-gray-900" />
+            <section className="space-y-8">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                <h2 className="text-xl font-serif font-bold text-gray-900">Shipping Address</h2>
+                <div className="flex items-center gap-2 text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                  <Truck className="w-3.5 h-3.5" />
+                  Step 02
                 </div>
-                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Shipping Address</h2>
               </div>
               
-              <div className="grid gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Street Address <span className="text-red-500">*</span></label>
+              <div className="grid gap-5">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Street Address <span className="text-[#D4AF37]">*</span></label>
                   <input 
                     required 
                     name="street"
                     value={formData.street}
                     onChange={handleInputChange}
-                    placeholder="Address line 1" 
-                    className="h-14 w-full bg-gray-50 border border-gray-100 rounded-xl px-6 text-sm font-bold text-gray-900 outline-none focus:border-gray-900 focus:bg-white transition-all"
+                    placeholder="Flat, House, Street Number" 
+                    className="h-12 w-full bg-transparent border-b-2 border-gray-100 px-1 text-sm font-bold text-gray-900 outline-none focus:border-[#D4AF37] transition-all placeholder:text-gray-200 placeholder:font-medium"
                   />
                 </div>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">City <span className="text-red-500">*</span></label>
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">City <span className="text-[#D4AF37]">*</span></label>
                     <input 
                       required 
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
                       placeholder="City/Region" 
-                      className="h-14 w-full bg-gray-50 border border-gray-100 rounded-xl px-6 text-sm font-bold text-gray-900 outline-none focus:border-gray-900 focus:bg-white transition-all"
+                      className="h-12 w-full bg-transparent border-b-2 border-gray-100 px-1 text-sm font-bold text-gray-900 outline-none focus:border-[#D4AF37] transition-all placeholder:text-gray-200 placeholder:font-medium"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Postal Code</label>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Postal Code</label>
                     <input 
                       name="state"
                       value={formData.state}
                       onChange={handleInputChange}
-                      placeholder="POSTAL CODE" 
-                      className="h-14 w-full bg-gray-50 border border-gray-100 rounded-xl px-6 text-sm font-bold text-gray-900 outline-none focus:border-gray-900 focus:bg-white transition-all"
+                      placeholder="Postal Code (Optional)" 
+                      className="h-12 w-full bg-transparent border-b-2 border-gray-100 px-1 text-sm font-bold text-gray-900 outline-none focus:border-[#D4AF37] transition-all placeholder:text-gray-200 placeholder:font-medium"
                     />
                   </div>
                 </div>
               </div>
             </section>
 
-            <div className="pt-8">
-               <Link href="/cart" className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest group">
-                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                  Return to Shopping Bag
-               </Link>
-            </div>
+
           </div>
 
           {/* Reconciliation Summary Area */}
-          <div className="lg:col-span-5 sticky top-32">
-            <div className="bg-white p-8 md:p-10 rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/50 space-y-10">
-              <div className="space-y-4">
-                 <h2 className="text-xs font-bold text-gray-900 uppercase tracking-widest">Bag Selection</h2>
-                 <div className="w-10 h-1 bg-gray-900 rounded-full" />
+          <div className="lg:col-span-5 lg:sticky lg:top-32">
+            <div className="space-y-12">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                <h2 className="text-xl font-serif font-bold text-gray-900">Bag Selection</h2>
+                <div className="flex items-center gap-2 text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  {cart.length} {cart.length === 1 ? 'Item' : 'Items'}
+                </div>
               </div>
               
-              <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-100">
+              <div className="space-y-8 max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
                 {cart.map((item, i) => (
-                  <div key={i} className="flex gap-4 items-center group">
-                    <div className="w-16 h-20 bg-gray-50 rounded-xl overflow-hidden relative flex-shrink-0">
+                  <div key={i} className="flex gap-6 items-start group">
+                    <div className="w-20 h-24 bg-gray-50 rounded-xl overflow-hidden relative flex-shrink-0 border border-gray-100 shadow-sm">
                       {item.imageUrl ? (
                       <Image 
                         src={item.imageUrl} 
                         alt={item.title}
                         fill
                         unoptimized={true}
-                        className="object-cover"
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                       ) : (
-                      <Image src="/placeholder.svg" alt="" fill className="object-cover" />
+                      <Image src="/placeholder.svg" alt="" fill className="object-cover" unoptimized={true} />
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                       <h4 className="text-xs font-bold text-gray-900 truncate tracking-tight">{item.title}</h4>
-                       <div className="flex flex-wrap gap-2 mt-1">
+                    <div className="flex-1 min-w-0 pt-1">
+                       <h4 className="text-sm font-bold text-gray-900 tracking-tight group-hover:text-[#D4AF37] transition-colors">{item.title}</h4>
+                       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2.5">
                           {item.selections && Object.entries(item.selections).map(([key, val]) => (
-                            <span key={key} className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                              {key}: {val as string}
+                            <span key={key} className="text-[9px] font-black text-gray-300 uppercase tracking-widest flex items-center gap-1.5">
+                              {key} <span className="text-gray-900">{val as string}</span>
                             </span>
                           ))}
-                          <span className="text-[9px] font-bold text-gray-900 uppercase tracking-widest bg-gray-50 px-1.5 py-0.5 rounded">QTY: {item.quantity || 1}</span>
+                          <span className="text-[9px] font-black text-gray-900 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100 flex items-center h-5">QTY: {item.quantity || 1}</span>
                        </div>
                     </div>
-                    <p className="text-sm font-black text-gray-900 tracking-tighter">Rs. {(item.price * (item.quantity || 1)).toLocaleString()}</p>
+                    <p className="text-sm font-black text-gray-900 tracking-tight pt-1">Rs. {(item.price * (item.quantity || 1)).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="pt-10 border-t border-gray-100 space-y-6">
+              <div className="pt-8 border-t border-gray-100 space-y-5">
                 <div className="flex justify-between items-center group">
-                  <span className="text-sm font-medium text-gray-500 group-hover:text-gray-900 transition-colors">Subtotal</span>
-                  <span className="text-base font-bold text-gray-900">Rs. {subtotal.toLocaleString()}</span>
+                  <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Subtotal</span>
+                  <span className="text-sm font-bold text-gray-900">Rs. {subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center group">
-                  <span className="text-sm font-medium text-gray-500 group-hover:text-gray-900 transition-colors">Shipping</span>
-                  <span className="text-[10px] font-bold text-gray-900 uppercase tracking-widest italic text-green-600">Complimentary</span>
+                  <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Shipping</span>
+                  <span className="text-[9px] font-bold text-green-600 uppercase tracking-[0.2em] bg-green-50 px-2 py-0.5 rounded-full">Complimentary</span>
                 </div>
                 
-                <div className="pt-8 border-t border-gray-100">
+                <div className="pt-10 mt-5 border-t border-gray-900/10">
                   <div className="flex justify-between items-end">
                     <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Order Value</span>
-                      <p className="text-2xl md:text-3xl font-black text-gray-900 tracking-tighter leading-none">Rs. {total.toLocaleString()}</p>
+                      <span className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em]">Total Order Value</span>
+                      <p className="text-3xl font-black text-gray-900 tracking-tighter leading-none">Rs. {total.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-8 pt-4">
+              <div className="space-y-4 pt-6">
                 <button 
                   type="submit" 
-                  className="w-full h-16 bg-black hover:bg-neutral-800 text-white font-bold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-black/10 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3" 
+                  className="w-full h-16 bg-black hover:bg-[#D4AF37] text-white font-black text-[11px] uppercase tracking-[0.3em] rounded-2xl shadow-xl shadow-black/10 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 group" 
                   disabled={isSubmitting || cart.length === 0}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                      Processing Order...
+                      Dispatching...
                     </span>
                   ) : (
                     <>
-                      Place Order
-                      <ArrowRight className="w-4 h-4" />
+                      Confirm Order
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </>
                   )} 
                 </button>
                 
-                <div className="flex items-center justify-center gap-3 py-4 border-t border-gray-100">
-                  <Lock className="w-3.5 h-3.5 text-gray-300" />
-                  <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest leading-none">Secure SSL Encryption</span>
+                <Link 
+                  href="/shop"
+                  className="w-full h-14 flex items-center justify-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] hover:text-black transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  Continue Shopping
+                </Link>
+
+                <div className="flex items-center justify-center gap-3 pt-4 border-t border-gray-50">
+                  <Lock className="w-3 h-3 text-gray-300" />
+                  <span className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em] leading-none">Secure SSL Transmission</span>
                 </div>
               </div>
             </div>

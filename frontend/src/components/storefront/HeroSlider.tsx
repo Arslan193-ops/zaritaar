@@ -110,7 +110,7 @@ export default function HeroSlider({
                     className="flex flex-wrap items-center gap-6"
                 >
                     <Link href={buttonLink || "#featured"} className="group relative bg-white text-black hover:bg-black hover:text-white px-10 py-4 font-bold text-sm uppercase tracking-widest transition-all rounded-2xl shadow-2xl flex items-center gap-2">
-                        {buttonText || "Explore Registry"}
+                        {buttonText || "Shop Collection"}
                         <motion.span 
                             animate={{ x: [0, 5, 0] }} 
                             transition={{ repeat: Infinity, duration: 2 }}

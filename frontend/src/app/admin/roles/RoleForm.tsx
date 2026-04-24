@@ -30,7 +30,7 @@ export default function RoleForm({ role }: { role?: any }) {
     setIsSubmitting(true)
     try {
       await upsertRole(role?.id || null, { name, permissions })
-      toast.success(role ? "Role updated successfully" : "Role created successfully")
+      toast.success(role ? "Role updated successfully." : "New role created.")
       router.push("/admin/roles")
       router.refresh()
     } catch (err: any) {

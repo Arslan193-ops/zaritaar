@@ -20,9 +20,9 @@ export function UserDeleteButton({ userId }: { userId: string }) {
     setIsDeleting(true)
     try {
       await deleteUser(userId)
-      toast.success("User deleted successfully")
+      toast.success("User profile successfully removed.")
     } catch (err: any) {
-      toast.error(err.message || "An error occurred")
+      toast.error(err.message || "An unexpected error occurred.")
     } finally {
       setIsDeleting(false)
       setConfirm(false)

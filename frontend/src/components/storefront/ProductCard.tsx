@@ -13,10 +13,11 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
   const isGrid = view === "2"
 
   return (
-    <div className="group flex flex-col bg-white rounded-[2rem] transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-transparent hover:border-[#D4AF37]/30 p-1 sm:p-4">
+    <div className="group flex flex-col transition-all duration-500 p-1 sm:p-2">
       <Link
         href={`/product/${product.id}`}
-        className="block relative aspect-[2/3] bg-gray-50 rounded-2xl overflow-hidden mb-3 sm:mb-6 border border-[#D4AF37]/20"
+        prefetch={false}
+        className="block relative aspect-[2/3] bg-gray-50 rounded-2xl overflow-hidden mb-3 sm:mb-6 border border-transparent group-hover:border-[#D4AF37]/50 transition-colors duration-500"
       >
         {product.image ? (
           <CdnImage
@@ -36,11 +37,6 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
         )}
 
 
-        <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
-          <span className="bg-[#D4AF37] text-black px-2.5 py-1 text-[8px] sm:text-[9px] font-black tracking-[0.2em] uppercase rounded-sm shadow-xl">
-            {product.categoryName === "Winter" ? "WINTER" : "NEW"}
-          </span>
-        </div>
       </Link>
 
       <div className="flex flex-col items-center text-center space-y-2">
@@ -48,7 +44,7 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
         <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.4em]">ZARITAAR</span>
 
 
-        <Link href={`/product/${product.id}`}>
+        <Link href={`/product/${product.id}`} prefetch={false}>
           <h3 className={`font-bold text-gray-900 group-hover:text-black transition-colors line-clamp-1 px-2 uppercase tracking-tight ${isGrid ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'}`}>
             {product.title}
           </h3>
@@ -70,6 +66,7 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
         <div className="w-full pt-4 hidden md:block">
           <Link
             href={`/product/${product.id}`}
+            prefetch={false}
             className="w-full bg-black text-white py-3 rounded-md text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all hover:bg-neutral-800 active:scale-[0.98] shadow-lg shadow-black/10"
           >
             <ShoppingBag className="w-3.5 h-3.5" />

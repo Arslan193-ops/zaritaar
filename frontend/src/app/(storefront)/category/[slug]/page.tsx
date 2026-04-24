@@ -8,6 +8,8 @@ import CategoryFilter from "@/components/storefront/CategoryFilter"
 import ProductGrid from "@/components/storefront/ProductGrid"
 import { ShoppingBag, LayoutGrid } from "lucide-react"
 
+export const revalidate = 60
+
 export default async function CategoryPage({
   params,
   searchParams,
@@ -45,11 +47,11 @@ export default async function CategoryPage({
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-black selection:text-white">
       {/* Category Banner */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 lg:py-20 flex flex-col items-center text-center">
+      <div className="bg-white">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 pt-10 pb-4 lg:pt-16 lg:pb-8 flex flex-col items-center text-center">
            {category.imageUrl && (
               <div className="w-16 h-16 md:w-24 md:h-24 rounded-full overflow-hidden relative mb-6 shadow-sm">
-                <Image src={category.imageUrl} alt={category.name} fill className="object-cover" />
+                <Image src={category.imageUrl} alt={category.name} fill className="object-cover" unoptimized={true} />
               </div>
            )}
            <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em] mb-4">
@@ -66,7 +68,7 @@ export default async function CategoryPage({
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-16">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 pt-6 pb-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-16">
          {/* Sidebar / Drawer Filters */}
          <aside className="w-full lg:w-[260px] shrink-0">
             <CategoryFilter />
@@ -74,7 +76,7 @@ export default async function CategoryPage({
 
          {/* Product Grid */}
          <main className="flex-1">
-            <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 pt-1 lg:pt-0">
+            <div className="flex items-center justify-between mb-2 pt-1 lg:pt-0">
                <div className="flex items-center gap-2">
                  <LayoutGrid className="w-4 h-4 text-gray-900" />
                  <span className="text-[11px] font-black tracking-[0.2em] uppercase text-gray-900">

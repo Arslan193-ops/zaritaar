@@ -49,7 +49,7 @@ export default async function AdminDashboard() {
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-3xl font-bold text-slate-900 tracking-tight">${(totalRevenue._sum.totalAmount || 0).toFixed(2)}</div>
+            <div className="text-3xl font-bold text-slate-900 tracking-tight">Rs. {(totalRevenue._sum.totalAmount || 0).toLocaleString()}</div>
             <p className="text-sm text-slate-500 mt-1">Total cumulative sales</p>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default async function AdminDashboard() {
                         <td className="px-6 py-4 font-medium text-slate-900">{o.customerName}</td>
                         <td className="px-6 py-4 text-slate-500">{new Date(o.createdAt).toLocaleDateString()}</td>
                         <td className="px-6 py-4 text-right font-semibold text-slate-900 tabular-nums">
-                          ${o.totalAmount.toFixed(2)}
+                          Rs. {o.totalAmount.toLocaleString()}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold

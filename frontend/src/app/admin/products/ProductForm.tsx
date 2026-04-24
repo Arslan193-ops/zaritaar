@@ -213,7 +213,7 @@ export function ProductForm({ product }: { product?: any }) {
       }
     })
     setVariants(newVariants)
-    toast.success("Unique SKUs generated for all variations")
+    toast.success("Unique SKUs generated successfully.")
   }
 
   async function handleSubmit(formData: FormData) {
@@ -277,7 +277,7 @@ export function ProductForm({ product }: { product?: any }) {
         : await createProduct(formData)
 
       if (result && result.success) {
-        toast.success(product ? "Product updated successfully" : "Product created successfully")
+        toast.success(product ? "Product updated successfully." : "New product published.")
         router.push("/admin/products")
         router.refresh()
       } else {
@@ -335,16 +335,16 @@ export function ProductForm({ product }: { product?: any }) {
 
           <div className="grid grid-cols-3 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-800">Regular Price ($)</label>
+              <label className="text-sm font-semibold text-gray-800">Regular Price (Rs.)</label>
               <Input name="basePrice" type="number" step="0.01" required defaultValue={product?.basePrice || ""} className="h-11 shadow-sm border-gray-300 rounded-md" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-800">Discounted Price ($)</label>
+              <label className="text-sm font-semibold text-gray-800">Discounted Price (Rs.)</label>
               <Input name="discountedPrice" type="number" step="0.01" defaultValue={product?.discountedPrice || ""} className="h-11 shadow-sm border-gray-300 rounded-md" />
               <p className="text-xs text-gray-500">Leave blank for no discount.</p>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-800">Cost Price ($)</label>
+              <label className="text-sm font-semibold text-gray-800">Cost Price (Rs.)</label>
               <Input name="costPrice" type="number" step="0.01" defaultValue={product?.costPrice || ""} className="h-11 shadow-sm border-gray-300 rounded-md" />
               <p className="text-xs text-gray-500">Not shown to customers.</p>
             </div>
@@ -569,8 +569,8 @@ export function ProductForm({ product }: { product?: any }) {
                       <tr>
                         <th className="px-4 py-3">Combination</th>
                         <th className="px-4 py-3 w-40">SKU</th>
-                        <th className="px-4 py-3 w-32">Reg. Price ($)</th>
-                        <th className="px-4 py-3 w-32">Sale Price ($)</th>
+                        <th className="px-4 py-3 w-32">Reg. Price (Rs.)</th>
+                        <th className="px-4 py-3 w-32">Sale Price (Rs.)</th>
                         <th className="px-4 py-3 w-28">Stock</th>
                         <th className="px-4 py-3 w-12"></th>
                       </tr>

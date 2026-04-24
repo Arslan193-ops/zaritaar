@@ -5,7 +5,7 @@ export default function ShopLoading() {
     <div className="min-h-screen bg-[#FDFCF9] flex flex-col font-sans">
 
       {/* Shop Header Skeleton */}
-      <div className="bg-white border-b border-gray-100">
+      <div className="bg-white">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 lg:py-20 flex flex-col items-center text-center">
            <div className="h-6 w-32 bg-gray-50 animate-pulse mb-6 rounded-full" />
            <div className="h-16 w-3/4 bg-gray-50 animate-pulse mb-4 rounded-sm" />

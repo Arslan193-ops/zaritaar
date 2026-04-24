@@ -125,7 +125,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
   const cartTotal = cartItems.reduce((total, item) => total + (item.price || 0) * (item.quantity || 1), 0)
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white shadow-sm transition-all duration-300 rounded-none">
+    <header className="sticky top-0 z-50 w-full bg-white transition-all duration-300 rounded-none">
       <AnimatePresence>
         {isSearchOpen && isMounted && (
           <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4">
@@ -172,6 +172,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                             <Link 
                               key={product.id} 
                               href={`/product/${product.id}`}
+                              prefetch={false}
                               onClick={() => setIsSearchOpen(false)}
                               className="flex items-center gap-4 group hover:bg-black hover:text-white p-2 -mx-2 rounded-2xl transition-all duration-300"
                             >
@@ -179,7 +180,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                                 {product.image ? (
                                 <CdnImage source={product.image} alt={product.title} fill sizes="40px" className="object-cover group-hover:scale-110 transition-transform duration-700" />
                                 ) : (
-                                <Image src="/placeholder.svg" alt="" fill className="object-cover" />
+                                <Image src="/placeholder.svg" alt="" fill className="object-cover" unoptimized={true} />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -246,7 +247,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
               ) : (
                 <div className="flex flex-col items-center lg:items-start leading-tight">
                   <span className="text-sm md:text-xl font-bold tracking-[0.2em] text-[#D4AF37] transition-all group-hover:tracking-[0.25em]">ZARITAAR</span>
-                  <span className="text-[5px] md:text-[7px] tracking-[0.3em] text-gray-500 uppercase font-bold">The Gold Standard</span>
+                  <span className="text-[5px] md:text-[7px] tracking-[0.3em] text-[#D4AF37] uppercase font-bold">The Gold Standard</span>
                 </div>
               )}
             </Link>
@@ -282,44 +283,77 @@ export default function HeaderClient({ settings }: { settings?: any }) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMenuOpen(false)}
-              className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-md lg:hidden"
             />
             <motion.div 
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-[80%] max-w-sm bg-white z-[120] shadow-2xl flex flex-col p-6 lg:hidden"
+              className="fixed inset-y-0 left-0 w-[85%] max-w-sm bg-white z-[120] shadow-2xl flex flex-col lg:hidden"
             >
-              <div className="flex items-center justify-between mb-10">
-                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">EXPLORE</span>
-                 <button onClick={() => setIsMenuOpen(false)} className="p-2 -mr-2 text-gray-400 hover:text-black">
-                   <X className="w-6 h-6" />
-                 </button>
-              </div>
-              
-              <nav className="flex flex-col gap-6">
-                <Link 
-                  href="/shop" 
-                  onClick={() => setIsMenuOpen(false)}
-                  className="text-base font-black uppercase tracking-widest text-gray-900 flex items-center justify-between group border-b border-gray-50 pb-4"
-                >
-                  Shop All <ArrowRight className="w-4 h-4 opacity-30" />
-                </Link>
-                {categories.map((cat) => (
-                  <Link 
-                    key={cat.id} 
-                    href={`/category/${cat.slug}`}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-base font-black uppercase tracking-widest text-gray-900 flex items-center justify-between group border-b border-gray-50 pb-4"
+              <div className="p-8 flex flex-col h-full">
+                <div className="flex items-center justify-between mb-12">
+                   <div className="flex flex-col">
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37]">Zaritaar</span>
+                     <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-gray-300">Boutique Bag</span>
+                   </div>
+                   <button 
+                     onClick={() => setIsMenuOpen(false)} 
+                     className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-900 hover:bg-black hover:text-white transition-all"
+                   >
+                     <X className="w-5 h-5" />
+                   </button>
+                </div>
+                
+                <nav className="flex flex-col gap-2">
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
                   >
-                    {cat.name} <ArrowRight className="w-4 h-4 opacity-30" />
-                  </Link>
-                ))}
-              </nav>
+                    <Link 
+                      href="/shop" 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-xl font-serif text-gray-900 flex items-center justify-between group py-3"
+                    >
+                      Shop All <ChevronRight className="w-4 h-4 text-[#D4AF37] opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                    </Link>
+                  </motion.div>
 
-              <div className="mt-auto pt-10 border-t border-gray-50 flex flex-col gap-4">
-                 <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{currentSettings?.storeName || "PEZWAAN"} REGISTRY v1.0</p>
+                  {categories.map((cat, idx) => (
+                    <motion.div
+                      key={cat.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 + (idx + 1) * 0.05 }}
+                    >
+                      <Link 
+                        href={`/category/${cat.slug}`}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="text-xl font-serif text-gray-900 flex items-center justify-between group py-3"
+                      >
+                        {cat.name} <ChevronRight className="w-4 h-4 text-[#D4AF37] opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                      </Link>
+                    </motion.div>
+                  ))}
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + (categories.length + 1) * 0.05 }}
+                    className="pt-8 mt-4 border-t border-gray-50"
+                  >
+                    <h4 className="text-[9px] font-black uppercase tracking-widest text-[#D4AF37] mb-4">Support & Logistics</h4>
+                    <Link 
+                      href="/track-order" 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-xl font-serif text-[#D4AF37] flex items-center justify-between group py-3"
+                    >
+                      Track Order <ChevronRight className="w-4 h-4 text-[#D4AF37] opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                    </Link>
+                  </motion.div>
+                </nav>
               </div>
             </motion.div>
           </>
@@ -358,9 +392,9 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                  {cartItems.length > 0 ? (
                    cartItems.map((item, idx) => (
                      <div key={idx} className="flex gap-4 group">
-                        <div className="w-20 h-28 bg-gray-50 rounded-xl overflow-hidden relative shrink-0">
-                           {item.image ? (
-                             <CdnImage source={item.image} alt={item.title} fill className="object-cover" />
+                        <div className="w-20 h-28 bg-gray-50 rounded-xl overflow-hidden relative shrink-0 border border-gray-100">
+                           {item.imageUrl ? (
+                             <Image src={item.imageUrl} alt={item.title} fill className="object-cover" unoptimized={true} />
                            ) : (
                              <div className="absolute inset-0 flex items-center justify-center text-gray-200"><ShoppingBag className="w-6 h-6" /></div>
                            )}
@@ -372,7 +406,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                                  <Trash2 className="w-4 h-4" />
                               </button>
                            </div>
-                           <p className="text-[10px] font-bold text-gray-400 mt-1">{item.variantName || 'Registry Pack'}</p>
+                           <p className="text-[10px] font-bold text-gray-400 mt-1">{item.variantName || 'Boutique Item'}</p>
                            <div className="mt-auto flex items-center justify-between">
                               <span className="text-[10px] font-bold text-gray-500">Qty: {item.quantity || 1}</span>
                               <span className="text-xs font-black">Rs. {(item.price || 0).toLocaleString()}</span>
@@ -388,7 +422,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                         onClick={() => setIsCartOpen(false)}
                         className="text-[10px] font-bold border-b border-black pb-1 uppercase tracking-widest hover:opacity-100"
                       >
-                         Discovery Registry
+                         View Collection
                       </button>
                    </div>
                  )}
@@ -397,7 +431,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
               {cartItems.length > 0 && (
                 <div className="p-6 bg-gray-50 border-t border-gray-100 space-y-4">
                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-[11px] font-black uppercase tracking-widest text-gray-400">Registry Subtotal</span>
+                      <span className="text-[11px] font-black uppercase tracking-widest text-gray-400">Bag Subtotal</span>
                       <span className="text-xl font-black">Rs. {cartTotal.toLocaleString()}</span>
                    </div>
                    <Link 
@@ -406,13 +440,6 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                     className="block w-full py-4 bg-black text-white text-center text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-neutral-800 transition-all shadow-xl shadow-black/10"
                    >
                      Secure Checkout
-                   </Link>
-                   <Link 
-                    href="/cart" 
-                    onClick={() => setIsCartOpen(false)}
-                    className="block w-full py-2 text-center text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors"
-                   >
-                     View Detailed Statement
                    </Link>
                 </div>
               )}

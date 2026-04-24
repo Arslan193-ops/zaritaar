@@ -1,6 +1,7 @@
 "use client"
 
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
+import { useState } from "react"
 import { BaseProduct } from "@/lib/storefront-actions"
 import ProductCard from "./ProductCard"
 import { Square, Grid2X2 } from "lucide-react"
@@ -11,14 +12,14 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({ products, hasSidebar = false }: ProductGridProps) {
-  const router = useRouter()
   const searchParams = useSearchParams()
-  const view = searchParams.get("view") || "2"
+  const [view, setView] = useState<"1" | "2">((searchParams.get("view") as "1" | "2") || "2")
 
   const handleViewChange = (newView: "1" | "2") => {
+    setView(newView)
     const params = new URLSearchParams(searchParams.toString())
     params.set("view", newView)
-    router.push(`?${params.toString()}`, { scroll: false })
+    window.history.replaceState(null, "", `?${params.toString()}`)
   }
 
   // Determine grid columns based on view type and whether a sidebar is taking up screen width
@@ -27,9 +28,8 @@ export default function ProductGrid({ products, hasSidebar = false }: ProductGri
     : (hasSidebar ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5')
 
   return (
-    <div className="space-y-8">
-
-      <div className="flex items-center justify-end mb-8 pb-4 border-b border-gray-100">
+    <div>
+      <div className="flex items-center justify-end mb-2">
         <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-xl">
           <button
             onClick={() => handleViewChange("1")}

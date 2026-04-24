@@ -93,7 +93,7 @@ export default function ProductTable({
     try {
       const res = await deleteProducts(deleteModal.ids)
       if (res.success) {
-        toast.success(`Deleted ${deleteModal.ids.length} products`)
+        toast.success(`Deleted ${deleteModal.ids.length} products.`)
         setSelectedIds([])
         setDeleteModal(prev => ({ ...prev, isOpen: false }))
         router.refresh()
@@ -112,7 +112,7 @@ export default function ProductTable({
     try {
       const res = await updateProductsStatus(selectedIds, status)
       if (res.success) {
-        toast.success(`Updated ${selectedIds.length} products`)
+        toast.success(`Updated status for ${selectedIds.length} products.`)
         setSelectedIds([])
         router.refresh()
       } else {
@@ -266,8 +266,8 @@ export default function ProductTable({
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden flex-shrink-0 relative shadow-sm">
-                          {product.imageUrl || product.images?.[0]?.url ? (
-                            <img src={product.imageUrl || product.images?.[0]?.url} alt="" className="w-full h-full object-cover" />
+                          {product.images?.[0]?.url ? (
+                            <img src={`${product.images[0].url}?w=100&q=80&auto=format`} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                                <ShoppingBag className="w-5 h-5 text-slate-200" />
@@ -321,7 +321,7 @@ export default function ProductTable({
                       </div>
                     </td>
                     <td className="px-6 py-4 font-black text-slate-900 tabular-nums">
-                      ${product.basePrice.toFixed(2)}
+                      Rs. {product.basePrice.toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                       {product.category?.name || "Global"}

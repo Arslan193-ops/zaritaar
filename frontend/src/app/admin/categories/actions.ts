@@ -3,13 +3,26 @@
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { client } from "@/lib/sanity"
+import { getSession } from "@/lib/auth"
+import { hasPermission, PERMISSIONS } from "@/lib/permissions"
 
 export async function getCategories() {
-  return await client.fetch(`*[_type == "category"] | order(name asc)`)
+  return await client.fetch(`*[_type == "category"] | order(name asc) {
+    "id": _id,
+    name,
+    "slug": slug.current,
+    description,
+    image
+  }`)
 }
 
 export async function createCategory(formData: FormData) {
   try {
+    const session = await getSession()
+    if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.CATEGORIES_CREATE)) {
+      return { success: false, error: "Unauthorized: Missing 'categories:create' capability." }
+    }
+
     const name = formData.get("name") as string
     const slug = formData.get("slug") as string
     const description = formData.get("description") as string
@@ -59,6 +72,11 @@ export async function createCategory(formData: FormData) {
 
 export async function updateCategory(id: string, formData: FormData) {
   try {
+    const session = await getSession()
+    if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.CATEGORIES_EDIT)) {
+      return { success: false, error: "Unauthorized: Missing 'categories:edit' capability." }
+    }
+
     const name = formData.get("name") as string
     const slug = formData.get("slug") as string
     const description = formData.get("description") as string
@@ -95,6 +113,17 @@ export async function updateCategory(id: string, formData: FormData) {
 
 export async function deleteCategory(id: string) {
   try {
+    const session = await getSession()
+    if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.CATEGORIES_DELETE)) {
+      return { success: false, error: "Unauthorized: Missing 'categories:delete' capability." }
+    }
+
+    const productCount = await prisma.product.count({ where: { categoryId: id } })
+    if (productCount > 0) {
+      return { success: false, error: "Cannot delete category: It contains products. Please reassign them first." }
+    }
+
+    await client.delete(id)
     await prisma.category.delete({ where: { id } })
     revalidatePath("/admin/categories")
     return { success: true }
@@ -105,6 +134,16 @@ export async function deleteCategory(id: string) {
 
 export async function deleteCategories(ids: string[]) {
   try {
+    const session = await getSession()
+    if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.CATEGORIES_DELETE)) {
+      return { success: false, error: "Unauthorized: Missing 'categories:delete' capability." }
+    }
+
+    const productCount = await prisma.product.count({ where: { categoryId: { in: ids } } })
+    if (productCount > 0) {
+      return { success: false, error: "Cannot delete categories: Some contain products. Please reassign them first." }
+    }
+
     await Promise.all(ids.map(id => client.delete(id)))
     await prisma.category.deleteMany({
       where: { id: { in: ids } }

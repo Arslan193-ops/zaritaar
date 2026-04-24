@@ -15,7 +15,7 @@ export function RoleDeleteButton({ roleId }: { roleId: string }) {
     setIsDeleting(true)
     try {
       await deleteRole(roleId)
-      toast.success("Role deleted successfully")
+      toast.success("Role successfully removed.")
     } catch (err: any) {
       toast.error(err.message || "An error occurred")
     } finally {

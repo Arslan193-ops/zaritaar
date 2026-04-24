@@ -12,6 +12,7 @@ import {
   X,
   Edit2
 } from "lucide-react"
+import { urlForImage } from "@/lib/sanity-image"
 
 export default function CategoryList({ 
   categories, 
@@ -142,8 +143,8 @@ export default function CategoryList({
                     </td>
                     <td className="px-6 py-4">
                       <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden flex-shrink-0 shadow-sm">
-                        {cat.imageUrl ? (
-                          <img src={cat.imageUrl} alt="" className="w-full h-full object-cover" />
+                        {cat.image ? (
+                          <img src={urlForImage(cat.image, 100)} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-slate-200">
                              <ShoppingBag className="w-5 h-5" />

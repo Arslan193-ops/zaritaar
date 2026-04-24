@@ -68,7 +68,7 @@ export default async function OrdersPage({
                        {new Date(order.createdAt).toLocaleDateString(undefined, { month: 'short', day: '2-digit', year: 'numeric' })}
                     </td>
                     <td className="px-6 py-4 font-black text-slate-900 tabular-nums uppercase">
-                       ${order.totalAmount.toFixed(2)}
+                       Rs. {order.totalAmount.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
                       <OrderStatusSelect orderId={order.id} initialStatus={order.status} />

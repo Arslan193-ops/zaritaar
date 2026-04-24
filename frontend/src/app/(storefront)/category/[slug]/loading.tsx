@@ -4,7 +4,7 @@ export default function CategoryLoading() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Category Banner Skeleton */}
-      <div className="bg-white border-b border-gray-100">
+      <div className="bg-white">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 lg:py-20 flex flex-col items-center text-center">
            <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-gray-50 animate-pulse mb-6" />
            <div className="h-3 w-32 bg-gray-50 animate-pulse mb-2 rounded-sm" />

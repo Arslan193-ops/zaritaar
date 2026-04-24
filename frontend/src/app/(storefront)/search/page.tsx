@@ -23,7 +23,7 @@ export default async function SearchPage({
       {/* Hero Section */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 lg:py-16 flex flex-col items-center text-center">
-           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] mb-2 drop-shadow-sm">Search Results</span>
+           <span className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-[0.3em] mb-2 drop-shadow-sm">Search Results</span>
            <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight mb-2 italic">
              {query ? `"${query}"` : "All Products"}
            </h1>
@@ -57,7 +57,7 @@ export default async function SearchPage({
                       className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
                     />
                     ) : (
-                    <Image src="/placeholder.svg" alt="" fill className="object-cover" />
+                    <Image src="/placeholder.svg" alt="" fill className="object-cover" unoptimized={true} />
                     )}
                     {product.variants?.length > 1 && (
                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md px-3 py-1.5 text-[9px] font-bold tracking-[0.2em] text-black opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">

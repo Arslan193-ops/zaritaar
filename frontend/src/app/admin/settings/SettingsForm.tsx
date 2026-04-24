@@ -166,9 +166,9 @@ export function SettingsForm({
         if (!res.success) throw new Error(res.error)
       }
       
-        toast.success("Settings saved successfully!")
+        toast.success("System configurations updated successfully.")
     } catch (err: any) {
-      toast.error(err.message || "An error occurred saving settings.")
+      toast.error(err.message || "Failed to update configurations.")
     } finally {
       setLoading(false)
     }

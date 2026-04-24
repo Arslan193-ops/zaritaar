@@ -41,6 +41,7 @@ export interface DetailedProduct extends BaseProduct {
   images: any[]
   variants: any[]
   categoryName: string
+  categorySlug: string | null
   relatedProducts: BaseProduct[]
   stock: number
   sizeChart?: string
@@ -73,7 +74,14 @@ export async function getStoreProducts(filters: ProductFilters = {}): Promise<Ba
       ...(inStock ? { stock: { gt: 0 } } : {}),
     },
     orderBy: sort === "newest" ? { createdAt: "desc" } : sort === "price_desc" ? { basePrice: "desc" } : { basePrice: "asc" },
-    include: { category: true },
+    select: {
+      id: true,
+      title: true,
+      basePrice: true,
+      categoryId: true,
+      status: true,
+      category: { select: { name: true } }
+    },
   })
 
   if (dbProducts.length === 0) return []
@@ -119,7 +127,14 @@ export async function searchStoreProducts(query: string) {
         { description: { contains: query, mode: "insensitive" } },
       ],
     },
-    include: { category: true },
+    select: {
+      id: true,
+      title: true,
+      basePrice: true,
+      categoryId: true,
+      status: true,
+      category: { select: { name: true } }
+    },
   })
 
   if (dbProducts.length === 0) return []
@@ -216,6 +231,7 @@ export async function getDetailedProduct(id: string): Promise<DetailedProduct | 
     variants: dbVariants,
     categoryId: product.category?._id || null,
     categoryName: product.category?.name || "Pret",
+    categorySlug: product.category?.slug || null,
     relatedProducts,
     stock: dbProduct?.stock ?? 0,
     sizeChart: dbProduct?.sizeChart ?? undefined,

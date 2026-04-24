@@ -28,9 +28,8 @@ export default function Footer({ storeName = "Zaritaar" }: FooterProps) {
           <div className="space-y-6">
             <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Explore</h4>
             <nav className="flex flex-col gap-4">
-              <Link href="/shop" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">All Products</Link>
               <Link href="/shop" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Collections</Link>
-              <Link href="/cart" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Shopping Bag</Link>
+              <Link href="/checkout" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Shopping Bag</Link>
             </nav>
           </div>
 
@@ -38,9 +37,9 @@ export default function Footer({ storeName = "Zaritaar" }: FooterProps) {
           <div className="space-y-6">
             <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Customer Care</h4>
             <nav className="flex flex-col gap-4">
-              <Link href="/" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Shipping & Returns</Link>
-              <Link href="/" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Track Order</Link>
-              <Link href="/" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Privacy Policy</Link>
+              <Link href="/shipping-returns" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Shipping & Returns</Link>
+              <Link href="/track-order" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Track Order</Link>
+              <Link href="/privacy-policy" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Privacy Policy</Link>
             </nav>
           </div>
 

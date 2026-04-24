@@ -8,7 +8,6 @@ import { getDetailedProduct } from "@/lib/storefront-actions"
 import { notFound } from "next/navigation"
 import { cn } from "@/lib/utils"
 import ProductCard from "@/components/storefront/ProductCard"
-
 export const revalidate = 60
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -55,7 +54,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   {product.categoryName || "ZARITAAR OFFICIAL"}
                 </p>
                 {product.sku && (
-                  <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest">
+                  <p className="text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest">
                     SKU: {product.sku}
                   </p>
                 )}
@@ -87,7 +86,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <div className="pt-8 border-t border-gray-100 space-y-6">
               <div>
                 <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em] mb-3">Product Description</h3>
-                <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                <p className="text-base text-gray-500 leading-relaxed font-medium">
                   {product.description || "A study in understated luxury. This ZARITAAR piece features hand-woven craftsmanship meticulously designed for the modern woman who values the soul of heritage."}
                 </p>
               </div>
@@ -119,9 +118,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
 
         {relatedProducts.length > 0 && (
-          <div className="mt-32 pt-20 border-t border-gray-100">
+          <div className="mt-12">
              <div className="text-center mb-16 space-y-3">
-               <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.4em]">Explore</p>
+               <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em]">Explore</p>
                <h2 className="text-3xl md:text-5xl font-serif text-gray-900">You May Also Like</h2>
             </div>
             
@@ -133,7 +132,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
             <div className="mt-16 flex justify-center">
               <Link 
-                href={product.categoryId ? `/category/${product.categoryName}` : "/shop"} 
+                href={product.categorySlug ? `/category/${product.categorySlug}` : (product.categoryId ? `/category/${product.categoryName}` : "/shop")} 
                 className="inline-flex items-center justify-center border border-gray-200 text-gray-900 font-black text-[10px] uppercase tracking-[0.2em] px-8 py-4 transition-all hover:bg-black hover:text-white hover:border-black rounded-lg"
               >
                 View All

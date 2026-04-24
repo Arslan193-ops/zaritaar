@@ -5,6 +5,7 @@ import { ImagePlus, Loader2, X } from "lucide-react"
 import { createCategory, updateCategory } from "./actions"
 import { toast } from "sonner"
 import { compressImage } from "@/lib/image-utils"
+import { urlForImage } from "@/lib/sanity-image"
 
 export default function CategoryForm({ 
   initialData = null, 
@@ -14,7 +15,9 @@ export default function CategoryForm({
   onSuccess: () => void 
 }) {
   const [isLoading, setIsLoading] = useState(false)
-  const [imagePreview, setImagePreview] = useState(initialData?.imageUrl || null)
+  const [imagePreview, setImagePreview] = useState(
+    initialData?.image ? urlForImage(initialData.image, 600) : null
+  )
   const [imageFile, setImageFile] = useState<File | null>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,7 +37,7 @@ export default function CategoryForm({
       : await createCategory(formData)
 
     if (res.success) {
-      toast.success(initialData ? "Category updated" : "Category created")
+      toast.success(initialData ? "Category updated successfully." : "New collection created.")
       form.reset()
       setImagePreview(null)
       setImageFile(null)

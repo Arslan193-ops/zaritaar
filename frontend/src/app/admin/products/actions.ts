@@ -25,7 +25,8 @@ export async function getPaginatedProducts({
   search?: string, 
   status?: string 
 }) {
-  const skip = (page - 1) * pageSize
+  const validPage = Math.max(1, page)
+  const skip = (validPage - 1) * pageSize
   
   const where: any = {}
   if (search) {
@@ -41,10 +42,21 @@ export async function getPaginatedProducts({
   const [products, total] = await Promise.all([
     prisma.product.findMany({
       where,
-      include: {
-        category: true,
-        variants: true,
-        images: { orderBy: { order: 'asc' } },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        stock: true,
+        basePrice: true,
+        createdAt: true,
+        category: {
+          select: { name: true }
+        },
+        images: {
+          select: { url: true },
+          orderBy: { order: 'asc' },
+          take: 1
+        },
       },
       orderBy: { createdAt: 'desc' },
       skip,
@@ -83,6 +95,7 @@ export async function createProduct(formData: FormData) {
     const slug = formData.get("slug") as string || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
     const description = formData.get("description") as string || ""
     const basePrice = parseFloat(formData.get("basePrice") as string) || 0
+    if (basePrice < 0) throw new Error("Base price cannot be negative.")
     const discountedPriceStr = formData.get("discountedPrice") as string
     const discountedPrice = discountedPriceStr ? parseFloat(discountedPriceStr) : null
     const costPriceStr = formData.get("costPrice") as string
@@ -188,6 +201,7 @@ export async function updateProduct(id: string, formData: FormData) {
     const description = formData.get("description") as string || ""
     const basePriceStr = formData.get("basePrice") as string
     const basePrice = basePriceStr ? parseFloat(basePriceStr) : 0
+    if (basePrice < 0) throw new Error("Base price cannot be negative.")
     const discountedPriceStr = formData.get("discountedPrice") as string
     const discountedPrice = discountedPriceStr ? parseFloat(discountedPriceStr) : null
     const costPriceStr = formData.get("costPrice") as string
@@ -353,9 +367,9 @@ async function handleVariantSync(productId: string, formData: FormData) {
           productId: productId,
           attributes: JSON.stringify(variantAttributes),
           sku: v.sku || null,
-          price: v.price ? parseFloat(v.price) : null,
-          discountedPrice: v.discountedPrice ? parseFloat(v.discountedPrice) : null,
-          stock: v.stock ? parseInt(v.stock) : 0,
+          price: v.price ? Math.max(0, parseFloat(v.price)) : null,
+          discountedPrice: v.discountedPrice ? Math.max(0, parseFloat(v.discountedPrice)) : null,
+          stock: v.stock ? Math.max(0, parseInt(v.stock)) : 0,
           imageUrl: v.imageUrl || null
         }
       })
@@ -373,6 +387,7 @@ export async function deleteProducts(ids: string[]) {
     console.log("CRITICAL_DELETE_INITIATED:", ids)
     // Sequential deletion in a loop to guarantee SQLite stability and trigger all cascades
     for (const id of ids) {
+      await client.delete(id)
       await prisma.product.delete({
         where: { id }
       })

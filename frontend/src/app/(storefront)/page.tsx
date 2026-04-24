@@ -56,12 +56,13 @@ export default async function Home() {
               sizes="100vw"
               className="object-cover opacity-15 grayscale"
               priority
+              unoptimized={true}
             />
             )}
           </div>
           
           <div className="max-w-7xl mx-auto px-6 relative z-10 w-full">
-            <div className="inline-flex items-center gap-2 py-1 px-3 bg-black/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-8">
+            <div className="inline-flex items-center gap-2 py-1 px-3 bg-black/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] mb-8">
               New Arrival Protocol 2024
             </div>
             <h1 className="text-2xl md:text-8xl font-black text-gray-900 leading-[1.1] mb-8 tracking-tighter">
@@ -94,6 +95,7 @@ export default async function Home() {
                 <Link 
                   href={`/category/${cat.slug?.current || cat.slug}`} 
                   key={cat._id || cat.id} 
+                  prefetch={false}
                   className="group block space-y-2 md:space-y-3 flex-shrink-0 w-[48%] md:w-auto"
                 >
                   <div className="aspect-[2/3] bg-gray-50 rounded-xl md:rounded-2xl overflow-hidden relative shadow-sm transition-all duration-300 group-hover:shadow-md border border-[#D4AF37]/10">
@@ -114,15 +116,10 @@ export default async function Home() {
                         </div>
                      )}
                   </div>
-                  <div className="flex flex-col items-center gap-1 pt-1">
-                    <h3 className={`text-[12px] font-bold text-center transition-colors
-                      ${idx % 4 === 1 ? 'text-[#ff4e50] group-hover:text-red-600' : 'text-gray-800 group-hover:text-black'}
-                    `}>
+                  <div className="flex flex-col items-center gap-1 pt-3">
+                    <h3 className="text-[12px] font-black uppercase tracking-widest text-gray-900 group-hover:text-[#D4AF37] transition-colors text-center">
                       {cat.name}
                     </h3>
-                    {idx % 4 === 2 ? (
-                      <span className="bg-[#ffaa9b] text-white text-[8px] px-2 py-0.5 rounded ml-1 font-bold tracking-wider">SS'2026</span>
-                    ) : null}
                   </div>
                 </Link>
               ))}
@@ -134,7 +131,7 @@ export default async function Home() {
       {/* Featured Collection Registry -> All Products */}
       <main id="featured" className="flex-1 max-w-[1400px] mx-auto px-4 sm:px-6 pt-12 md:pt-20 pb-6 md:pb-12 w-full">
         <div className="text-center mb-6 md:mb-12 space-y-2 md:space-y-3">
-           <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.4em]">Explore</p>
+           <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em]">Explore</p>
            <h2 className="text-3xl md:text-5xl font-serif text-gray-900">All Products</h2>
         </div>
 

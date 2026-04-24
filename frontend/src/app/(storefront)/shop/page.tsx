@@ -4,6 +4,7 @@ import CategoryFilter from "@/components/storefront/CategoryFilter"
 import ProductGrid from "@/components/storefront/ProductGrid"
 import { ShoppingBag, LayoutGrid } from "lucide-react"
 import Link from "next/link"
+export const revalidate = 60
 
 export default async function ShopPage({
   searchParams,
@@ -32,8 +33,8 @@ export default async function ShopPage({
       {/* Global Shop Header */}
 
       {/* Global Shop Header */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 lg:py-20 flex flex-col items-center text-center">
+      <div className="bg-white">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 pt-10 pb-4 lg:pt-16 lg:pb-8 flex flex-col items-center text-center">
            <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em] mb-4">
               The Collection
            </p>
@@ -46,7 +47,7 @@ export default async function ShopPage({
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-16">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 pt-6 pb-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-16">
          {/* Sidebar / Drawer Filters */}
          <aside className="w-full lg:w-[260px] shrink-0">
             <CategoryFilter />
@@ -54,7 +55,7 @@ export default async function ShopPage({
 
          {/* Product Grid */}
          <main className="flex-1">
-            <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 pt-1 lg:pt-0">
+            <div className="flex items-center justify-between mb-2 pt-1 lg:pt-0">
                <div className="flex items-center gap-2">
                  <LayoutGrid className="w-4 h-4 text-gray-900" />
                  <span className="text-[11px] font-black tracking-[0.2em] uppercase text-gray-900">
@@ -68,10 +69,10 @@ export default async function ShopPage({
                 <ShoppingBag className="w-12 h-12 text-gray-100 mb-6" />
                 <h3 className="text-[14px] font-black text-gray-900 mb-2 uppercase tracking-[0.2em]">No Matches Found</h3>
                 <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-8 max-w-[240px] mx-auto leading-relaxed">
-                  The current parameters yielded zero results in the registry.
+                  The current parameters yielded zero results in the collection.
                 </p>
                 <Link href="/shop" className="text-[10px] font-black uppercase tracking-[0.3em] text-black border-2 border-black px-8 py-3 hover:bg-black hover:text-white transition-all rounded-xl">
-                   Reset Registry
+                   Reset Filters
                 </Link>
               </div>
             ) : (

@@ -2,6 +2,8 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { getSession } from "@/lib/auth"
+import { hasPermission, PERMISSIONS } from "@/lib/permissions"
 
 export async function getPaginatedOrders({ 
   page = 1, 
@@ -10,13 +12,35 @@ export async function getPaginatedOrders({
   page?: number, 
   pageSize?: number 
 }) {
-  const skip = (page - 1) * pageSize
+  const session = await getSession()
+  if (!session) {
+    throw new Error("Unauthorized: Active session required.")
+  }
+
+  const validPage = Math.max(1, page)
+  const skip = (validPage - 1) * pageSize
 
   const [orders, total] = await Promise.all([
     prisma.order.findMany({
-      include: {
+      select: {
+        id: true,
+        customerName: true,
+        customerEmail: true,
+        totalAmount: true,
+        status: true,
+        createdAt: true,
         items: {
-          include: { variant: { include: { product: true } } }
+          select: {
+            id: true,
+            quantity: true,
+            price: true,
+            variant: {
+              select: {
+                sku: true,
+                product: { select: { title: true } }
+              }
+            }
+          }
         }
       },
       orderBy: { createdAt: "desc" },
@@ -36,6 +60,11 @@ export async function getPaginatedOrders({
 
 export async function updateOrderStatus(orderId: string, status: string) {
   try {
+    const session = await getSession()
+    if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.ORDERS_EDIT)) {
+      return { success: false, error: "Unauthorized: Missing 'orders:edit' capability." }
+    }
+
     await prisma.order.update({
       where: { id: orderId },
       data: { status }

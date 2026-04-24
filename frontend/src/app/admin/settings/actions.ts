@@ -129,7 +129,7 @@ export async function updateShippingMethods(methodsJson: string) {
       data: methods.map((m: any, i: number) => ({
         name: m.name,
         duration: m.duration,
-        price: parseFloat(m.price || 0),
+        price: Math.max(0, parseFloat(m.price || 0)),
         isFree: m.isFree,
         orderIndex: i
       }))
