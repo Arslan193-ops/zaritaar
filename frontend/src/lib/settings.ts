@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma"
 
 export const getStoreSettings = unstable_cache(
   async () => {
-    const settings = await prisma.storeSettings.upsert({
+    const settings = await (prisma.storeSettings as any).upsert({
       where: { id: "global" },
       update: {},
       create: { id: "global", storeName: "My Store" },
@@ -17,6 +17,7 @@ export const getStoreSettings = unstable_cache(
         showHeroButton: true,
         desktopHeroImage: true,
         heroSliderImages: true,
+        heroBadge: true,
         whatsappNumber: true,
         logoUrl: true,
         logoDarkUrl: true,

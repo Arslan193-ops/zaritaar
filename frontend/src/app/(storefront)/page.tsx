@@ -12,7 +12,7 @@ export const revalidate = 60
 
 export default async function Home() {
   const [settings, categories, products] = await Promise.all([
-    getStoreSettings(),
+    getStoreSettings() as any,
     getStoreCategories(),
     getStoreProducts()
   ])
@@ -32,6 +32,7 @@ export default async function Home() {
           subtext={settings?.heroHeadline ?? undefined} 
           buttonText={settings?.heroButtonText ?? undefined}
           buttonLink={settings?.heroButtonLink ?? undefined}
+          badgeText={settings?.heroBadge ?? undefined}
           showHeadline={settings?.showHeroHeadline}
           showButton={settings?.showHeroButton}
         />
@@ -81,7 +82,7 @@ export default async function Home() {
       {/* Trust Signals removed temporarily per user request */}
 
       {/* ALL COLLECTIONS SECTION */}
-      <section className="bg-[#fcfbf5] pt-4 pb-2 md:py-10 border-b border-gray-100">
+      <section className="bg-[#f7f4e9] pt-4 pb-2 md:py-10 border-b border-gray-100">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
           <h2 className="text-center text-lg md:text-3xl font-black text-gray-900 mb-6 md:mb-10 tracking-[0.2em] uppercase leading-relaxed">ALL COLLECTIONS</h2>
           

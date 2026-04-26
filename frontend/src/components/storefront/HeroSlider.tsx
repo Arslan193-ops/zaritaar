@@ -12,6 +12,7 @@ interface HeroSliderProps {
   subtext?: string
   buttonText?: string
   buttonLink?: string
+  badgeText?: string
   showHeadline?: boolean
   showButton?: boolean
 }
@@ -22,6 +23,7 @@ export default function HeroSlider({
   subtext, 
   buttonText, 
   buttonLink,
+  badgeText,
   showHeadline = true,
   showButton = true
 }: HeroSliderProps) {
@@ -74,7 +76,7 @@ export default function HeroSlider({
                transition={{ delay: 0.2, duration: 0.8 }}
                className="inline-flex items-center gap-2 py-1 px-3 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-white/80 border border-white/10 mb-8"
             >
-                Premium Collection 2024
+                {badgeText || "Premium Collection 2024"}
             </motion.div>
 
             {showHeadline && (
@@ -109,7 +111,7 @@ export default function HeroSlider({
                     transition={{ delay: 0.8, duration: 0.8 }}
                     className="flex flex-wrap items-center gap-6"
                 >
-                    <Link href={buttonLink || "#featured"} className="group relative bg-white text-black hover:bg-black hover:text-white px-10 py-4 font-bold text-sm uppercase tracking-widest transition-all rounded-2xl shadow-2xl flex items-center gap-2">
+                    <Link href={buttonLink || "#featured"} className="group relative bg-black text-white hover:bg-white hover:text-black border border-black px-10 py-4 font-bold text-sm uppercase tracking-widest transition-all rounded-2xl shadow-2xl flex items-center gap-2">
                         {buttonText || "Shop Collection"}
                         <motion.span 
                             animate={{ x: [0, 5, 0] }} 

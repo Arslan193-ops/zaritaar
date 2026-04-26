@@ -189,7 +189,7 @@ export async function getDetailedProduct(id: string): Promise<DetailedProduct | 
 
   // Run secondary DB and Sanity queries concurrently
   const [dbProduct, dbVariants, relatedProductsRes] = await Promise.all([
-    prisma.product.findUnique({ where: { id: product._id } }),
+    prisma.product.findUnique({ where: { id: product._id }, include: { category: true } }),
     prisma.productVariant.findMany({ where: { productId: product._id } }),
     client.fetch(
       `*[_type == "product" && category._ref == $categoryId && _id != $id][0...8]{
@@ -230,7 +230,7 @@ export async function getDetailedProduct(id: string): Promise<DetailedProduct | 
     images: product.images,
     variants: dbVariants,
     categoryId: product.category?._id || null,
-    categoryName: product.category?.name || "Pret",
+    categoryName: (dbProduct as any)?.category?.name || product.category?.name || "ZARITAAR OFFICIAL",
     categorySlug: product.category?.slug || null,
     relatedProducts,
     stock: dbProduct?.stock ?? 0,

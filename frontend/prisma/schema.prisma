@@ -148,6 +148,7 @@ model StoreSettings {
   heroSliderImages           String?  @default("[]")
   announcementsText          String?  @default("[\"Get an extra 5% off on your first order using code 'IMNEW' !\"]")
   enableScrollingAnnouncements Boolean @default(false)
+  heroBadge                  String?  @default("PREMIUM COLLECTION 2024")
   updatedAt                  DateTime @updatedAt
   facebookPixelId            String?
   tiktokPixelId              String?

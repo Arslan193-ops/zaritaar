@@ -111,7 +111,6 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
 
   return (
     <div className="space-y-10">
-      
       {/* Chart Lightbox */}
       <AnimatePresence>
         {zoomedChartUrl && (
@@ -142,6 +141,7 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
         )}
       </AnimatePresence>
       
+      {/* Size Guide Sidebar */}
       <AnimatePresence>
         {isSizeGuideOpen && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-10">
@@ -161,7 +161,6 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
               <div className="p-6 sm:p-10 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
                  <div>
                    <h2 className="text-2xl sm:text-3xl font-serif text-gray-900">Measurement Guide</h2>
-                   <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.3em] mt-1">Refining Your Perfect Fit</p>
                  </div>
                  <button 
                   onClick={() => setIsSizeGuideOpen(false)}
@@ -175,123 +174,108 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
                 {(() => {
                   if (!product.sizeChart) return (
                     <div className="py-20 text-center space-y-6">
-                       <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
-                         <Info className="w-8 h-8 text-gray-200" />
-                       </div>
-                       <div className="space-y-2">
-                         <p className="text-[11px] font-black text-gray-900 uppercase tracking-[0.2em]">Documentation Pending</p>
-                         <p className="text-[10px] text-gray-400 font-medium max-w-[200px] mx-auto leading-relaxed">
-                            A detailed chart for this specific boutique item is being finalized.
-                         </p>
-                       </div>
+                       <Info className="w-8 h-8 text-gray-200 mx-auto" />
+                       <p className="text-[11px] font-black text-gray-900 uppercase tracking-[0.2em]">Documentation Pending</p>
                     </div>
                   )
                   
                   try {
                     const chartData = JSON.parse(product.sizeChart)
-                    
                     if (Array.isArray(chartData)) {
                       return (
                         <div className="space-y-8">
                           {chartData.map((url: string, i: number) => (
-                            <div 
-                              key={i} 
-                              className="group relative cursor-zoom-in"
-                              onClick={() => setZoomedChartUrl(url)}
-                            >
-                              <img 
-                                src={url} 
-                                alt="Size Chart" 
-                                className="w-full h-auto rounded-2xl border border-gray-100 shadow-sm transition-transform duration-700 group-hover:scale-[1.01]" 
-                              />
-                              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-900 shadow-lg">
-                                  <Maximize2 className="w-4 h-4" />
-                                </div>
-                              </div>
+                            <div key={i} className="group relative cursor-zoom-in" onClick={() => setZoomedChartUrl(url)}>
+                              <img src={url} alt="Size Chart" className="w-full h-auto rounded-2xl border border-gray-100 shadow-sm transition-transform duration-700 group-hover:scale-[1.01]" />
                             </div>
                           ))}
                         </div>
                       )
                     }
-                    
-                    if (chartData && typeof chartData === 'object' && chartData.headers) {
-                      return (
-                        <div className="overflow-x-auto rounded-2xl border border-gray-100">
-                          <table className="w-full text-[11px] border-collapse bg-white">
-                            <thead>
-                              <tr className="bg-gray-50">
-                                {chartData.headers.map((h: any, i: number) => (
-                                  <th key={i} className="py-6 px-6 text-left font-black uppercase tracking-widest text-gray-900">{h.text}</th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                              {chartData.rows.map((row: any, ri: number) => (
-                                <tr key={ri} className="hover:bg-gray-50/50 transition-colors">
-                                  {row.map((cell: any, ci: number) => (
-                                    <td key={ci} className="py-6 px-6 text-gray-500 font-medium">{cell.text}</td>
-                                  ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )
-                    }
                     return null
-                  } catch (e) {
-                    return <p className="text-[10px] text-red-400">Error loading data</p>
-                  }
+                  } catch (e) { return null }
                 })()}
-              </div>
-              
-              <div className="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-center">
-                 <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center">
-                    All measurements are in inches unless otherwise specified.
-                 </p>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      <div className="flex flex-wrap items-center gap-4">
-        {product.freeShipping && (
-          <span className="bg-emerald-50 text-emerald-700 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded flex items-center gap-1.5 border border-emerald-100">
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-            Free Shipping
-          </span>
-        )}
-        {currentStock > 0 && currentStock < 10 && (
-          <p className="text-[11px] font-bold text-orange-600 italic">
-            Only {currentStock} left in stock - order soon!
+      {/* Dynamic Header Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.3em]">
+            {product.categoryName || "ZARITAAR OFFICIAL"}
           </p>
-        )}
+          <AnimatePresence mode="wait">
+            <motion.p 
+              key={selectedVariant?.sku || product.sku}
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest"
+            >
+              SKU: {selectedVariant?.sku || product.sku || "N/A"}
+            </motion.p>
+          </AnimatePresence>
+        </div>
+
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-gray-900 leading-tight">
+          {product.title}
+        </h1>
+
+        <div className="flex items-center gap-4">
+          <AnimatePresence mode="wait">
+            <motion.p 
+              key={currentPrice}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-3xl md:text-4xl font-serif text-gray-900"
+            >
+              Rs. {currentPrice.toLocaleString()}
+            </motion.p>
+          </AnimatePresence>
+          
+          {product.freeShipping && (
+            <span className="bg-emerald-50 text-emerald-700 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded flex items-center gap-1.5 border border-emerald-100">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              Free Shipping
+            </span>
+          )}
+        </div>
+
+        <div className="pt-2 space-y-3">
+          <AnimatePresence mode="wait">
+            {currentStock > 0 && currentStock <= 10 && (
+              <motion.p 
+                key={currentStock}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="text-[11px] font-bold text-orange-600 italic"
+              >
+                Only {currentStock} left in stock - order soon!
+              </motion.p>
+            )}
+          </AnimatePresence>
+          <div className="h-[1px] w-full bg-[#D4AF37]/30" />
+        </div>
       </div>
 
-
+      {/* Options Section */}
       {Object.entries(options).map(([attrName, values]) => {
         const isColor = attrName.toLowerCase() === "color" || attrName.toLowerCase() === "colour" || attrName.toLowerCase() === "finish"
-        
         return (
           <div key={attrName} className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em]">
                 {attrName}: <span className={cn("ml-1 font-medium", isColor ? "text-[#D4AF37]" : "text-gray-400")}>{selections[attrName]}</span>
               </h3>
-              
               {attrName.toLowerCase() === "size" && (
-                <button 
-                  onClick={() => setIsSizeGuideOpen(true)}
-                  className="text-[9px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 hover:text-black transition-all group"
-                >
+                <button onClick={() => setIsSizeGuideOpen(true)} className="text-[9px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 hover:text-black transition-all group">
                    <Ruler className="w-3.5 h-3.5" />
                    <span className="border-b border-gray-200 group-hover:border-black">Size Guide</span>
                 </button>
               )}
             </div>
-
             <div className="flex flex-wrap gap-3">
               {values.map(val => (
                 <button
@@ -299,23 +283,11 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
                   onClick={() => setSelections({...selections, [attrName]: val})}
                   className={cn(
                     "transition-all duration-300 flex items-center justify-center relative",
-                    isColor 
-                      ? "w-9 h-9 rounded-full border-2 p-1" 
-                      : "min-w-[50px] h-10 px-4 text-[11px] font-bold border transition-colors",
-                    selections[attrName] === val 
-                      ? (isColor ? "border-[#D4AF37] scale-110" : "border-black bg-black text-white") 
-                      : (isColor ? "border-gray-100 opacity-60" : "border-gray-200 text-gray-400 hover:border-gray-400 hover:text-black")
+                    isColor ? "w-9 h-9 rounded-full border-2 p-1" : "min-w-[50px] h-10 px-4 text-[11px] font-bold border transition-colors",
+                    selections[attrName] === val ? (isColor ? "border-[#D4AF37] scale-110" : "border-black bg-black text-white") : (isColor ? "border-gray-100 opacity-60" : "border-gray-200 text-gray-400 hover:border-gray-400 hover:text-black")
                   )}
                 >
-                  {isColor ? (
-                    <div 
-                      className="w-full h-full rounded-full border border-black/5" 
-                      style={{ backgroundColor: val.toLowerCase().replace(" ", "") }}
-                      title={val}
-                    />
-                  ) : (
-                    val
-                  )}
+                  {isColor ? <div className="w-full h-full rounded-full border border-black/5" style={{ backgroundColor: val.toLowerCase().replace(" ", "") }} title={val} /> : val}
                 </button>
               ))}
             </div>
@@ -323,44 +295,34 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
         )
       })}
 
+      {/* Quantity Selector */}
+      <div className="space-y-4">
+        <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em]">Select Quantity</h3>
+        <div className="flex items-center w-32 h-12 border border-gray-100 rounded-xl overflow-hidden shadow-sm bg-white">
+          <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold">-</button>
+          <div className="w-12 h-full flex items-center justify-center font-black text-xs border-x border-gray-50">{quantity}</div>
+          <button onClick={() => setQuantity(quantity + 1)} className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold">+</button>
+        </div>
+      </div>
 
       <div className="space-y-4 pt-6">
         <button 
           onClick={() => handleAddToCart()} 
           disabled={adding || currentStock === 0}
-          className={cn(
-            "w-full h-14 font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 rounded",
-            currentStock === 0 
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-              : "bg-black text-white hover:bg-gray-900 active:scale-[0.98]"
-          )}
+          className={cn("w-full h-14 font-black text-[12px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 rounded", currentStock === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-black text-white hover:bg-neutral-800")}
         >
-           {adding ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
+           {adding ? <Check className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
            {currentStock === 0 ? "Out of Stock" : (adding ? "Added to Bag" : "Add to Bag")}
         </button>
-
         <button 
-          onClick={() => {
-            const success = handleAddToCart(true)
-            if (success) router.push("/checkout")
-          }} 
+          onClick={() => { const success = handleAddToCart(true); if (success) router.push("/checkout") }} 
           disabled={currentStock === 0}
-          className={cn(
-            "w-full h-14 font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 rounded border-2 border-black hover:bg-black hover:text-white",
-            currentStock === 0 
-              ? "opacity-20 cursor-not-allowed" 
-              : "text-black bg-transparent"
-          )}
+          className={cn("w-full h-14 font-black text-[12px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 rounded border-2 border-black", currentStock === 0 ? "opacity-20 cursor-not-allowed" : "text-black hover:bg-black hover:text-white")}
         >
            Buy Now
         </button>
-
-        <button 
-          onClick={handleWhatsAppOrder}
-          className="w-full h-14 border border-emerald-100 bg-emerald-50/20 text-emerald-800 font-black text-[9px] uppercase tracking-[0.2em] transition-all hover:bg-emerald-50 active:scale-[0.98] flex items-center justify-center gap-2 rounded"
-        >
-           <MessageCircle className="w-4 h-4 text-emerald-500" />
-           Inquiry via WhatsApp
+        <button onClick={handleWhatsAppOrder} className="w-full h-14 bg-[#25D366] text-white font-black text-[11px] uppercase tracking-[0.3em] transition-all hover:bg-[#128C7E] active:scale-[0.98] flex items-center justify-center gap-3 rounded shadow-lg shadow-[#25D366]/20">
+           <MessageCircle className="w-5 h-5 fill-white" /> Inquiry via WhatsApp
         </button>
       </div>
     </div>

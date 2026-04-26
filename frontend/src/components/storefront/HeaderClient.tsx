@@ -210,7 +210,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
         )}
       </AnimatePresence>
 
-      <div className="bg-black text-white w-full py-2 px-4 flex items-center justify-between text-[11px] font-medium tracking-wide relative z-50 rounded-none">
+      <div className="bg-black text-[#D4AF37] w-full py-2 px-4 flex items-center justify-between text-[11px] font-medium tracking-wide relative z-50 rounded-none">
         <ChevronLeft onClick={() => setAnnouncementIndex((prev) => (prev - 1 + announcements.length) % announcements.length)} className="w-4 h-4 cursor-pointer hover:text-gray-300" />
         <div className="flex-1 overflow-hidden relative h-4">
           {announcements.map((text: string, idx: number) => (
