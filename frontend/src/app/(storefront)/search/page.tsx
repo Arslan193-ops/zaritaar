@@ -4,6 +4,7 @@ import Link from "next/link"
 import { getStoreSettings } from "@/lib/settings"
 import { searchStoreProducts } from "@/lib/storefront-actions"
 import { ShoppingBag, Search as SearchIcon } from "lucide-react"
+export const revalidate = 60
 
 export default async function SearchPage({
   searchParams,

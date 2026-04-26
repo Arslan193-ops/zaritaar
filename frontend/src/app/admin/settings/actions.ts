@@ -1,5 +1,5 @@
 "use server"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import prisma from "@/lib/prisma"
 import { getSession } from "@/lib/auth"
 import { hasPermission, PERMISSIONS } from "@/lib/permissions"

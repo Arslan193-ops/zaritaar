@@ -28,7 +28,7 @@ async function main() {
 
   // Create Default Super Host User
   const hashedPassword = await bcrypt.hash("admin123", 10)
-  
+
   await prisma.user.upsert({
     where: { email: "admin@mystore.com" },
     update: {},

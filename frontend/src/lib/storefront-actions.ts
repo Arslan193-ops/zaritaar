@@ -16,7 +16,7 @@ export async function getStoreCategories() {
       "slug": slug.current,
       "image": image.asset->url,
       imageUrl
-    }`)
+    }`, {}, { next: { tags: ["categories"] } })
     return categories
   } catch (error) {
     console.error("Failed to fetch categories:", error)
@@ -89,7 +89,7 @@ export async function getStoreProducts(filters: ProductFilters = {}): Promise<Ba
   // 2. Optimization: Batch fetch Sanity images for active products in ONE roundtrip
   try {
     const ids = dbProducts.map(p => p.id)
-    const sanityData = await (client as any).fetch(`*[_id in $ids] { _id, images }`, { ids })
+    const sanityData = await (client as any).fetch(`*[_id in $ids] { _id, images }`, { ids }, { next: { tags: ["products"] } })
 
     return dbProducts.map((p) => {
       const sanityProduct = sanityData.find((s: any) => s._id === p.id)
@@ -123,8 +123,8 @@ export async function searchStoreProducts(query: string) {
     where: {
       status: "PUBLISHED",
       OR: [
-        { title: { contains: query, mode: "insensitive" } },
-        { description: { contains: query, mode: "insensitive" } },
+        { title: { contains: query } },
+        { description: { contains: query } },
       ],
     },
     select: {
@@ -141,7 +141,7 @@ export async function searchStoreProducts(query: string) {
 
   try {
     const ids = dbProducts.map(p => p.id)
-    const sanityData = await (client as any).fetch(`*[_id in $ids] { _id, images }`, { ids })
+    const sanityData = await (client as any).fetch(`*[_id in $ids] { _id, images }`, { ids }, { next: { tags: ["products"] } })
 
     return dbProducts.map((p) => {
       const sanityProduct = sanityData.find((s: any) => s._id === p.id)

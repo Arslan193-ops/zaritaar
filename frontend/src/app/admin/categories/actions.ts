@@ -1,7 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { client } from "@/lib/sanity"
 import { getSession } from "@/lib/auth"
 import { hasPermission, PERMISSIONS } from "@/lib/permissions"
@@ -61,8 +61,9 @@ export async function createCategory(formData: FormData) {
       }
     })
 
-    revalidatePath("/admin/categories")
-    revalidatePath("/admin/products")
+    revalidatePath("/admin/categories", "page")
+    revalidatePath("/admin/products", "page")
+    revalidatePath("/", "layout")
     return { success: true }
   } catch (error: any) {
     console.error("CREATE_CATEGORY_ERROR:", error)
@@ -104,7 +105,8 @@ export async function updateCategory(id: string, formData: FormData) {
       data: { name, slug, description }
     })
 
-    revalidatePath("/admin/categories")
+    revalidatePath("/admin/categories", "page")
+    revalidatePath("/", "layout")
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -125,7 +127,8 @@ export async function deleteCategory(id: string) {
 
     await client.delete(id)
     await prisma.category.delete({ where: { id } })
-    revalidatePath("/admin/categories")
+    revalidatePath("/admin/categories", "page")
+    revalidatePath("/", "layout")
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -148,7 +151,8 @@ export async function deleteCategories(ids: string[]) {
     await prisma.category.deleteMany({
       where: { id: { in: ids } }
     })
-    revalidatePath("/admin/categories")
+    revalidatePath("/admin/categories", "page")
+    revalidatePath("/", "layout")
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }

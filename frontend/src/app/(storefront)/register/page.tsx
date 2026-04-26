@@ -28,7 +28,7 @@ export default function RegisterPage() {
     }
   }
 
-  const registrationDisabled = process.env.NEXT_PUBLIC_ALLOW_REGISTRATION === "false" || false;
+  const registrationDisabled = true;
 
   if (registrationDisabled) {
     return (

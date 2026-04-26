@@ -181,7 +181,7 @@ export async function createProduct(formData: FormData) {
     // Create variants
     await handleVariantSync(product.id, formData)
 
-    revalidatePath("/admin/products")
+    revalidatePath("/admin/products", "page")
     return { success: true }
   } catch (error: any) {
     console.error("CREATE_PRODUCT_ERROR:", error)
@@ -320,8 +320,8 @@ export async function updateProduct(id: string, formData: FormData) {
     await prisma.productVariant.deleteMany({ where: { productId: id } })
     await handleVariantSync(id, formData)
 
-    revalidatePath("/admin/products")
-    revalidatePath(`/product/${id}`)
+    revalidatePath("/admin/products", "page")
+    revalidatePath(`/product/${id}`, "page")
     revalidatePath("/", "layout")
     return { success: true }
   } catch (error: any) {
@@ -385,7 +385,6 @@ export async function deleteProducts(ids: string[]) {
     }
 
     console.log("CRITICAL_DELETE_INITIATED:", ids)
-    // Sequential deletion in a loop to guarantee SQLite stability and trigger all cascades
     for (const id of ids) {
       await client.delete(id)
       await prisma.product.delete({
@@ -393,7 +392,7 @@ export async function deleteProducts(ids: string[]) {
       })
     }
     console.log("CRITICAL_DELETE_SUCCESSFUL")
-    revalidatePath("/admin/products")
+    revalidatePath("/admin/products", "page")
     revalidatePath("/", "layout")
     return { success: true }
   } catch (error: any) {
@@ -418,7 +417,7 @@ export async function updateProductsStatus(ids: string[], status: string) {
       where: { id: { in: ids } },
       data: { status }
     })
-    revalidatePath("/admin/products")
+    revalidatePath("/admin/products", "page")
     revalidatePath("/", "layout")
     return { success: true }
   } catch (error: any) {

@@ -11,9 +11,10 @@ export interface CdnImageProps extends Omit<ImageProps, "src"> {
 export function CdnImage({ source, alt, width, height, ...rest }: CdnImageProps) {
   if (!source) return null
 
-  // If width is undefined and we aren't using 'fill', provide a default width for the CDN
   const cdnWidth = width || 1200
   const imageUrl = urlForImage(source, cdnWidth)
+
+  if (!imageUrl) return null
 
   return (
     <Image

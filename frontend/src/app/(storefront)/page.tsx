@@ -103,8 +103,7 @@ export default async function Home() {
                         <CdnImage 
                           source={cat.image} 
                           alt={cat.name}
-                          width={400}
-                          height={500}
+                          fill
                           className="object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                      ) : (
