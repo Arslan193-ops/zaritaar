@@ -45,7 +45,7 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
 
 
         <Link href={`/product/${product.id}`} prefetch={false}>
-          <h3 className={`font-bold text-gray-900 group-hover:text-black transition-colors line-clamp-1 px-2 uppercase tracking-tight ${isGrid ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'}`}>
+          <h3 className={`font-serif font-bold text-gray-900 group-hover:text-black transition-colors line-clamp-1 px-2 uppercase tracking-wide ${isGrid ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>
             {product.title}
           </h3>
         </Link>
@@ -58,7 +58,7 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
         </div>
 
 
-        <p className={`font-black text-gray-900 ${isGrid ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'}`}>
+        <p className={`font-black text-gray-900 tracking-tighter ${isGrid ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>
           Rs. {(product.basePrice || 0).toLocaleString()}
         </p>
 
