@@ -11,7 +11,8 @@ import {
   LogOut,
   ShieldAlert,
   FolderTree,
-  Megaphone
+  Megaphone,
+  Tag
 } from "lucide-react"
 import { logout } from "@/app/admin/users/actions"
 import { hasPermission, PERMISSIONS, Permission } from "@/lib/permissions"
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard, permission: PERMISSIONS.DASHBOARD_VIEW, exact: true },
   { name: "Products", href: "/admin/products", icon: ShoppingBag, permission: PERMISSIONS.PRODUCTS_VIEW },
+  { name: "Coupons", href: "/admin/coupons", icon: Tag, permission: PERMISSIONS.PRODUCTS_VIEW },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart, permission: PERMISSIONS.ORDERS_VIEW },
   { name: "Categories", href: "/admin/categories", icon: FolderTree, permission: PERMISSIONS.CATEGORIES_VIEW },
   { name: "Users", href: "/admin/users", icon: Users, permission: PERMISSIONS.USERS_VIEW },

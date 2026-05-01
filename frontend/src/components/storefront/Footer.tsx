@@ -26,7 +26,7 @@ export default function Footer({ storeName = "Zaritaar" }: FooterProps) {
 
           {/* Explore */}
           <div className="space-y-6">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Explore</h4>
+            <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Explore</h4>
             <nav className="flex flex-col gap-4">
               <Link href="/shop" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Collections</Link>
               <Link href="/checkout" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Shopping Bag</Link>
@@ -35,7 +35,7 @@ export default function Footer({ storeName = "Zaritaar" }: FooterProps) {
 
           {/* Customer Care */}
           <div className="space-y-6">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Customer Care</h4>
+            <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Customer Care</h4>
             <nav className="flex flex-col gap-4">
               <Link href="/shipping-returns" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Shipping & Returns</Link>
               <Link href="/track-order" className="text-xs font-medium text-gray-400 hover:text-white transition-colors tracking-wide">Track Order</Link>
@@ -45,7 +45,7 @@ export default function Footer({ storeName = "Zaritaar" }: FooterProps) {
 
           {/* The Atelier */}
           <div className="space-y-6">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">The Atelier</h4>
+            <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">The Atelier</h4>
             <p className="text-xs font-medium text-gray-400 leading-relaxed tracking-wide">
               Global operations handled from our central design laboratory in Pakistan.
             </p>

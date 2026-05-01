@@ -17,7 +17,7 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
       <Link
         href={`/product/${product.id}`}
         prefetch={false}
-        className="block relative aspect-[2/3] bg-gray-50 rounded-2xl overflow-hidden mb-3 sm:mb-6 border border-transparent group-hover:border-[#D4AF37]/50 transition-colors duration-500"
+        className="block relative aspect-[2/3] bg-gray-50 rounded-2xl overflow-hidden mb-3 sm:mb-6 border border-[#D4AF37]/30 group-hover:border-[#D4AF37] transition-all duration-500 shadow-sm"
       >
         {product.image ? (
           <CdnImage
@@ -45,7 +45,7 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
 
 
         <Link href={`/product/${product.id}`} prefetch={false}>
-          <h3 className={`font-serif font-bold text-gray-900 group-hover:text-black transition-colors line-clamp-1 px-2 uppercase tracking-wide ${isGrid ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>
+          <h3 className={`font-serif font-medium text-gray-900 group-hover:text-black transition-colors line-clamp-1 px-2 uppercase tracking-wide ${isGrid ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>
             {product.title}
           </h3>
         </Link>
@@ -58,7 +58,7 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
         </div>
 
 
-        <p className={`font-black text-gray-900 tracking-tighter ${isGrid ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>
+        <p className={`font-medium text-gray-900 tracking-tighter ${isGrid ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>
           Rs. {(product.basePrice || 0).toLocaleString()}
         </p>
 

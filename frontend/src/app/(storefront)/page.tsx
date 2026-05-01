@@ -66,7 +66,7 @@ export default async function Home() {
             <div className="inline-flex items-center gap-2 py-1 px-3 bg-black/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] mb-8">
               New Arrival Protocol 2024
             </div>
-            <h1 className="text-2xl md:text-8xl font-black text-gray-900 leading-[1.1] mb-8 tracking-tighter">
+            <h1 className="text-2xl md:text-8xl font-bold text-gray-900 leading-[1.1] mb-8 tracking-tighter">
               {settings?.heroHeadline || "THE NEW STANDARD"} <br />
               <span className="text-gray-400">IN MODERN LUXURY.</span>
             </h1>
@@ -84,7 +84,7 @@ export default async function Home() {
       {/* ALL COLLECTIONS SECTION */}
       <section className="bg-[#f7f4e9] pt-4 pb-2 md:py-10 border-b border-gray-100">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-          <h2 className="text-center text-lg md:text-3xl font-black text-gray-900 mb-6 md:mb-10 tracking-[0.2em] uppercase leading-relaxed">ALL COLLECTIONS</h2>
+          <h2 className="text-center text-lg md:text-3xl font-bold text-gray-900 mb-6 md:mb-10 tracking-[0.2em] uppercase leading-relaxed">ALL COLLECTIONS</h2>
           
           {categories.length === 0 ? (
             <div className="text-center py-10">
@@ -117,7 +117,7 @@ export default async function Home() {
                      )}
                   </div>
                   <div className="flex flex-col items-center gap-1 pt-3">
-                    <h3 className="text-[12px] font-black uppercase tracking-widest text-gray-900 group-hover:text-[#D4AF37] transition-colors text-center">
+                    <h3 className="text-[12px] font-bold uppercase tracking-widest text-gray-900 group-hover:text-[#D4AF37] transition-colors text-center">
                       {cat.name}
                     </h3>
                   </div>
@@ -131,7 +131,7 @@ export default async function Home() {
       {/* Featured Collection Registry -> All Products */}
       <main id="featured" className="flex-1 max-w-[1400px] mx-auto px-4 sm:px-6 pt-12 md:pt-20 pb-6 md:pb-12 w-full">
         <div className="text-center mb-6 md:mb-12 space-y-2 md:space-y-3">
-           <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em]">Explore</p>
+           <p className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-[0.4em]">Explore</p>
            <h2 className="text-3xl md:text-5xl font-serif text-gray-900">All Products</h2>
         </div>
 

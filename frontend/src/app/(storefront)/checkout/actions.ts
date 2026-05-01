@@ -10,72 +10,126 @@ export async function createOrder(data: {
   shippingCity?: string
   shippingState?: string
   items: { productId: string, variantId?: string, quantity: number, price: number }[]
+  couponCode?: string
 }) {
   try {
-    // Remove client-side total calculation
-    // const totalAmount = data.items.reduce((acc, item) => acc + (item.price * item.quantity), 0)
-
-    // Using Prisma $transaction to ensure atomicity
     const order = await prisma.$transaction(async (tx) => {
       const orderItems = []
       let serverTotalAmount = 0
 
       for (const item of data.items) {
-        // 1. ATOMIC STOCK VERIFICATION & SECURE PRICE FETCHING
+        if (item.quantity <= 0 || !Number.isInteger(item.quantity)) {
+          throw new Error(`Invalid quantity for product.`)
+        }
+
         const product = await tx.product.findUnique({
           where: { id: item.productId },
           select: { title: true, stock: true, basePrice: true, discountedPrice: true }
         })
 
-        if (item.quantity <= 0 || !Number.isInteger(item.quantity)) {
-          throw new Error(`Invalid quantity for "${product?.title || 'Unknown Product'}".`)
+        if (!product) {
+          throw new Error(`Product not found.`)
         }
 
-        if (!product || product.stock < item.quantity) {
-          throw new Error(`Insufficient stock for "${product?.title || 'Unknown Product'}". Only ${product?.stock || 0} left.`)
-        }
-
-        // 2. VARIANT MANAGEMENT & PRICE RESOLUTION
         let variantId = item.variantId
         let variantPrice = null
+        let availableStock = product.stock
 
         if (variantId) {
           const v = await tx.productVariant.findUnique({ where: { id: variantId }})
-          if (v) variantPrice = v.discountedPrice || v.price
+          if (v) {
+             variantPrice = v.discountedPrice || v.price
+             // Use variant stock if we have variants
+             availableStock = v.stock
+          }
         } else {
           const v = await tx.productVariant.findFirst({ where: { productId: item.productId }})
-          variantId = v?.id
-          if (v) variantPrice = v.discountedPrice || v.price
+          if (v) {
+             variantId = v.id
+             variantPrice = v.discountedPrice || v.price
+             availableStock = v.stock
+          } else {
+             // Create default variant if none exists
+             const newV = await tx.productVariant.create({
+               data: { productId: item.productId, sku: `DEF-${item.productId.slice(0,5)}`, stock: product.stock }
+             })
+             variantId = newV.id
+          }
         }
 
-        if (!variantId) {
-          const v = await tx.productVariant.create({
-            data: {
-              productId: item.productId,
-              sku: `DEF-${item.productId.slice(0,5)}`
-            }
-          })
-          variantId = v.id
+        if (availableStock < item.quantity) {
+          throw new Error(`Insufficient stock for "${product.title}". Only ${availableStock} left.`)
         }
 
-        // Determine final secure price
         const finalPrice = variantPrice ?? (product.discountedPrice ?? product.basePrice)
         serverTotalAmount += finalPrice * item.quantity
 
-        // 3. DECREMENT STOCK
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } }
-        })
+        // DECREMENT STOCK
+        if (variantId) {
+           await tx.productVariant.update({
+             where: { id: variantId },
+             data: { stock: { decrement: item.quantity } }
+           })
+        } else {
+           await tx.product.update({
+             where: { id: item.productId },
+             data: { stock: { decrement: item.quantity } }
+           })
+        }
 
         orderItems.push({
-          variantId: variantId,
+          variantId: variantId!,
           quantity: item.quantity,
-          price: finalPrice // Use DB verified price
+          price: finalPrice
         })
       }
 
-      // 4. CREATE ORDER WITH SECURE TOTAL
+      // COUPON LOGIC
+      let discountAmount = 0
+      let appliedCouponId = null
+
+      if (data.couponCode) {
+        const coupon = await tx.coupon.findUnique({
+           where: { code: data.couponCode }
+        })
+
+        if (!coupon || !coupon.isActive) {
+           throw new Error("Invalid or inactive coupon code.")
+        }
+        
+        if (coupon.maxUses && coupon.currentUses >= coupon.maxUses) {
+           throw new Error("This coupon has reached its usage limit.")
+        }
+        
+        const now = new Date()
+        if (coupon.startDate && now < coupon.startDate) throw new Error("This coupon is not active yet.")
+        if (coupon.endDate && now > coupon.endDate) throw new Error("This coupon has expired.")
+
+        // Prevent single user from using it multiple times (per-email limit)
+        const previousUse = await tx.order.findFirst({
+           where: { customerEmail: data.customerEmail, couponId: coupon.id, status: { not: "CANCELLED" } }
+        })
+        if (previousUse) {
+           throw new Error("You have already used this coupon code.")
+        }
+
+        if (coupon.discountType === "PERCENTAGE") {
+           discountAmount = serverTotalAmount * (coupon.discountValue / 100)
+        } else {
+           discountAmount = coupon.discountValue
+        }
+
+        if (discountAmount > serverTotalAmount) discountAmount = serverTotalAmount
+
+        serverTotalAmount -= discountAmount
+        appliedCouponId = coupon.id
+
+        await tx.coupon.update({
+           where: { id: coupon.id },
+           data: { currentUses: { increment: 1 } }
+        })
+      }
+
       return await tx.order.create({
         data: {
           customerName: data.customerName,
@@ -85,6 +139,8 @@ export async function createOrder(data: {
           shippingCity: data.shippingCity,
           shippingState: data.shippingState,
           totalAmount: serverTotalAmount,
+          discountAmount: discountAmount,
+          couponId: appliedCouponId,
           status: "PENDING",
           items: {
             create: orderItems
@@ -95,7 +151,7 @@ export async function createOrder(data: {
 
     return { success: true, orderId: order.id }
   } catch (error: any) {
-    console.error("ORDER_HARDENING_ERROR:", error.message)
+    console.error("ORDER_ERROR:", error.message)
     return { success: false, error: error.message || "Checkout failed. Please try again." }
   }
 }

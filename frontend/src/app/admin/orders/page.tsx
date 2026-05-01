@@ -61,7 +61,7 @@ export default async function OrdersPage({
                     <td className="px-6 py-4">
                       <div className="space-y-0.5">
                         <div className="font-bold text-slate-900 tracking-tight">{order.customerName}</div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{order.customerEmail}</div>
+                        <div className="text-[11px] font-medium text-slate-500 tracking-tight">{order.customerEmail}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tabular-nums">

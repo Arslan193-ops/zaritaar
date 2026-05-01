@@ -84,7 +84,7 @@ export default function HeroSlider({
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4, duration: 0.8 }}
-                    className="text-2xl sm:text-4xl md:text-8xl font-black text-white leading-[1.1] mb-6 md:mb-8 tracking-tighter drop-shadow-2xl"
+                    className="text-2xl sm:text-4xl md:text-8xl font-bold text-white leading-[1.1] mb-6 md:mb-8 tracking-tighter drop-shadow-2xl"
                 >
                     {headline?.split(" ").map((word, i) => (
                         <span key={i} className={i % 2 === 1 ? "text-white/60" : "text-white"}>

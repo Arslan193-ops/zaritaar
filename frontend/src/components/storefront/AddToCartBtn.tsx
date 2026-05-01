@@ -1,9 +1,10 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Check, ShoppingBag, MessageCircle, Ruler, Info, X, Maximize2 } from "lucide-react"
+import { Check, ShoppingBag, MessageCircle, Ruler, Info, X, Maximize2, Truck } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
@@ -64,6 +65,11 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
     )
 
     if (existingIndex >= 0) {
+      if (currentCart[existingIndex].quantity + quantity > currentStock) {
+        toast.error(`Only ${currentStock} items available in stock.`)
+        if (!silent) setAdding(false)
+        return false
+      }
       currentCart[existingIndex].quantity += quantity
     } else {
       const newItem = {
@@ -202,62 +208,72 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
       </AnimatePresence>
 
       {/* Dynamic Header Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.3em]">
-            {product.categoryName || "ZARITAAR OFFICIAL"}
-          </p>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+          {product.categorySlug ? (
+            <Link 
+              href={`/category/${product.categorySlug}`}
+              className="text-[11px] font-medium text-[#D4AF37] uppercase tracking-[0.2em] hover:text-black transition-colors"
+            >
+              {product.categoryName || "Collection"}
+            </Link>
+          ) : (
+            <p className="text-[11px] font-medium text-[#D4AF37] uppercase tracking-[0.2em]">
+              {product.categoryName || "ZARITAAR OFFICIAL"}
+            </p>
+          )}
           <AnimatePresence mode="wait">
             <motion.p 
               key={selectedVariant?.sku || product.sku}
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-[11px] font-medium text-gray-500 uppercase tracking-widest"
             >
               SKU: {selectedVariant?.sku || product.sku || "N/A"}
             </motion.p>
           </AnimatePresence>
         </div>
 
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-gray-900 leading-tight">
-          {product.title}
-        </h1>
+        <div className="space-y-2">
+          <h1 className="text-3xl md:text-4xl font-serif font-normal text-gray-900 uppercase tracking-wide">
+            {product.title}
+          </h1>
 
-        <div className="flex items-center gap-4">
-          <AnimatePresence mode="wait">
-            <motion.p 
-              key={currentPrice}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-3xl md:text-4xl font-serif text-gray-900"
-            >
-              Rs. {currentPrice.toLocaleString()}
-            </motion.p>
-          </AnimatePresence>
-          
-          {product.freeShipping && (
-            <span className="bg-emerald-50 text-emerald-700 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded flex items-center gap-1.5 border border-emerald-100">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              Free Shipping
-            </span>
-          )}
-        </div>
+          <div className="flex items-center gap-3">
+            <AnimatePresence mode="wait">
+              <motion.p 
+                key={currentPrice}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-2xl font-serif text-gray-900"
+              >
+                Rs. {currentPrice.toLocaleString()}
+              </motion.p>
+            </AnimatePresence>
+            
+            {product.freeShipping && (
+              <span className="bg-[#E8F5E9] text-[#2E7D32] px-2 py-1 text-[9px] font-bold uppercase tracking-wider rounded flex items-center gap-1.5 border border-[#C8E6C9]">
+                <Truck className="w-3 h-3" />
+                Free Shipping
+              </span>
+            )}
+          </div>
 
-        <div className="pt-2 space-y-3">
           <AnimatePresence mode="wait">
             {currentStock > 0 && currentStock <= 10 && (
               <motion.p 
                 key={currentStock}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="text-[11px] font-bold text-orange-600 italic"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-[13px] font-medium text-[#FF4500]"
               >
                 Only {currentStock} left in stock - order soon!
               </motion.p>
             )}
           </AnimatePresence>
-          <div className="h-[1px] w-full bg-[#D4AF37]/30" />
         </div>
+
+        <div className="h-[1px] w-full bg-gray-100" />
       </div>
 
       {/* Options Section */}
@@ -266,13 +282,13 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
         return (
           <div key={attrName} className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em]">
-                {attrName}: <span className={cn("ml-1 font-medium", isColor ? "text-[#D4AF37]" : "text-gray-400")}>{selections[attrName]}</span>
+              <h3 className="text-sm font-medium text-gray-900">
+                {attrName.charAt(0).toUpperCase() + attrName.slice(1)}: <span className={cn("ml-1", isColor ? "text-[#D4AF37]" : "text-gray-400")}>{selections[attrName]}</span>
               </h3>
               {attrName.toLowerCase() === "size" && (
-                <button onClick={() => setIsSizeGuideOpen(true)} className="text-[9px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 hover:text-black transition-all group">
+                <button onClick={() => setIsSizeGuideOpen(true)} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 hover:text-black transition-all group">
                    <Ruler className="w-3.5 h-3.5" />
-                   <span className="border-b border-gray-200 group-hover:border-black">Size Guide</span>
+                   <span className="border-b border-transparent group-hover:border-black">SIZE GUIDE</span>
                 </button>
               )}
             </div>
@@ -281,11 +297,13 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
                 <button
                   key={val}
                   onClick={() => setSelections({...selections, [attrName]: val})}
-                  className={cn(
-                    "transition-all duration-300 flex items-center justify-center relative",
-                    isColor ? "w-9 h-9 rounded-full border-2 p-1" : "min-w-[50px] h-10 px-4 text-[11px] font-bold border transition-colors",
-                    selections[attrName] === val ? (isColor ? "border-[#D4AF37] scale-110" : "border-black bg-black text-white") : (isColor ? "border-gray-100 opacity-60" : "border-gray-200 text-gray-400 hover:border-gray-400 hover:text-black")
-                  )}
+                  className={
+                    "transition-all duration-300 flex items-center justify-center relative " +
+                    (isColor ? "w-9 h-9 rounded-full border-2 p-1 " : "min-w-[50px] h-10 px-4 text-[11px] font-bold border transition-colors ") +
+                    (selections[attrName] === val 
+                      ? (isColor ? "border-[#D4AF37] scale-110" : "border-black bg-black text-white") 
+                      : (isColor ? "border-gray-100 opacity-60" : "border-gray-200 text-gray-400 hover:border-gray-400 hover:text-black"))
+                  }
                 >
                   {isColor ? <div className="w-full h-full rounded-full border border-black/5" style={{ backgroundColor: val.toLowerCase().replace(" ", "") }} title={val} /> : val}
                 </button>
@@ -297,32 +315,34 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
 
       {/* Quantity Selector */}
       <div className="space-y-4">
-        <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em]">Select Quantity</h3>
+        <h3 className="text-sm font-medium text-gray-900">Quantity</h3>
         <div className="flex items-center w-32 h-12 border border-gray-100 rounded-xl overflow-hidden shadow-sm bg-white">
           <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold">-</button>
           <div className="w-12 h-full flex items-center justify-center font-black text-xs border-x border-gray-50">{quantity}</div>
-          <button onClick={() => setQuantity(quantity + 1)} className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold">+</button>
+          <button onClick={() => setQuantity(Math.min(currentStock, quantity + 1))} className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold">+</button>
         </div>
       </div>
 
       <div className="space-y-4 pt-6">
-        <button 
-          onClick={() => handleAddToCart()} 
-          disabled={adding || currentStock === 0}
-          className={cn("w-full h-14 font-black text-[12px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 rounded", currentStock === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-black text-white hover:bg-neutral-800")}
-        >
-           {adding ? <Check className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
-           {currentStock === 0 ? "Out of Stock" : (adding ? "Added to Bag" : "Add to Bag")}
-        </button>
-        <button 
-          onClick={() => { const success = handleAddToCart(true); if (success) router.push("/checkout") }} 
-          disabled={currentStock === 0}
-          className={cn("w-full h-14 font-black text-[12px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 rounded border-2 border-black", currentStock === 0 ? "opacity-20 cursor-not-allowed" : "text-black hover:bg-black hover:text-white")}
-        >
-           Buy Now
-        </button>
-        <button onClick={handleWhatsAppOrder} className="w-full h-14 bg-[#25D366] text-white font-black text-[11px] uppercase tracking-[0.3em] transition-all hover:bg-[#128C7E] active:scale-[0.98] flex items-center justify-center gap-3 rounded shadow-lg shadow-[#25D366]/20">
-           <MessageCircle className="w-5 h-5 fill-white" /> Inquiry via WhatsApp
+        <div className="grid grid-cols-2 gap-4">
+          <button 
+            onClick={() => handleAddToCart()} 
+            disabled={adding || currentStock === 0}
+            className={cn("h-14 font-bold text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 rounded border border-black", currentStock === 0 ? "bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed" : "bg-white text-black hover:bg-black hover:text-white")}
+          >
+             {adding ? <Check className="w-4 h-4" /> : (currentStock === 0 ? "" : <ShoppingBag className="w-4 h-4" />)}
+             {currentStock === 0 ? "Out of Stock" : (adding ? "Added" : "Add to Cart")}
+          </button>
+          <button 
+            onClick={() => { const success = handleAddToCart(true); if (success) router.push("/checkout") }} 
+            disabled={currentStock === 0}
+            className={cn("h-14 font-bold text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 rounded", currentStock === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-black text-white hover:bg-neutral-800")}
+          >
+             Buy It Now
+          </button>
+        </div>
+        <button onClick={handleWhatsAppOrder} className="w-full h-14 bg-[#25D366] text-white font-bold text-[11px] uppercase tracking-[0.2em] transition-all hover:bg-[#128C7E] active:scale-[0.98] flex items-center justify-center gap-3 rounded">
+           <MessageCircle className="w-5 h-5 fill-white" /> WhatsApp Order
         </button>
       </div>
     </div>

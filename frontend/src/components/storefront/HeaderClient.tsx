@@ -184,7 +184,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-[11px] font-black uppercase tracking-wider line-clamp-1">{product.title}</h4>
+                                <h4 className="text-[11px] font-bold uppercase tracking-wider line-clamp-1">{product.title}</h4>
                                 <p className="text-[10px] font-bold opacity-60">Rs. {product.basePrice?.toLocaleString()}</p>
                               </div>
                               <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
@@ -255,9 +255,9 @@ export default function HeaderClient({ settings }: { settings?: any }) {
 
           {/* Nav - Desktop Only - Perfectly Centered */}
           <nav className="hidden lg:flex items-center justify-center gap-8 absolute left-1/2 -translate-x-1/2 h-full">
-            <Link href="/shop" className="text-[11px] font-bold uppercase tracking-widest text-gray-600 hover:text-black transition-all">Shop All</Link>
+            <Link href="/shop" className="text-[11px] font-medium uppercase tracking-widest text-gray-600 hover:text-black transition-all">Shop All</Link>
             {categories.map((cat) => (
-              <Link key={cat.id} href={`/category/${cat.slug}`} className="text-[11px] font-bold uppercase tracking-wider text-gray-600 hover:text-black transition-all">{cat.name}</Link>
+              <Link key={cat.id} href={`/category/${cat.slug}`} className="text-[11px] font-medium uppercase tracking-wider text-gray-600 hover:text-black transition-all">{cat.name}</Link>
             ))}
           </nav>
 
@@ -409,7 +409,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                            <p className="text-[10px] font-bold text-gray-400 mt-1">{item.variantName || 'Boutique Item'}</p>
                            <div className="mt-auto flex items-center justify-between">
                               <span className="text-[10px] font-bold text-gray-500">Qty: {item.quantity || 1}</span>
-                              <span className="text-xs font-black">Rs. {(item.price || 0).toLocaleString()}</span>
+                              <span className="text-xs font-medium">Rs. {(item.price || 0).toLocaleString()}</span>
                            </div>
                         </div>
                      </div>
@@ -432,7 +432,7 @@ export default function HeaderClient({ settings }: { settings?: any }) {
                 <div className="p-6 bg-gray-50 border-t border-gray-100 space-y-4">
                    <div className="flex items-center justify-between mb-4">
                       <span className="text-[11px] font-black uppercase tracking-widest text-gray-400">Bag Subtotal</span>
-                      <span className="text-xl font-black">Rs. {cartTotal.toLocaleString()}</span>
+                      <span className="text-xl font-medium">Rs. {cartTotal.toLocaleString()}</span>
                    </div>
                    <Link 
                     href="/checkout" 

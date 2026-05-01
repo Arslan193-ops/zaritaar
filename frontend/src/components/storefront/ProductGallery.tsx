@@ -147,7 +147,7 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
       <div className="flex-1 relative flex justify-center">
         <div 
           onClick={() => setIsZoomed(true)}
-          className="bg-white rounded-2xl overflow-hidden relative w-full max-w-[500px] border border-[#D4AF37]/10 group shadow-sm transition-all duration-700 max-h-[80vh] cursor-zoom-in"
+          className="bg-white rounded-2xl overflow-hidden relative w-full max-w-[500px] border border-[#D4AF37]/30 group shadow-sm transition-all duration-700 max-h-[80vh] cursor-zoom-in"
           style={{ aspectRatio: "3/4" }}
         >
           <CdnImage 

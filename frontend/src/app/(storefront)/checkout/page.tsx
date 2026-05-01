@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { CheckCircle2, ShoppingBag, ShieldCheck, ArrowLeft, Lock, User, Truck, ArrowRight } from "lucide-react"
+import { CheckCircle2, ShoppingBag, ShieldCheck, ArrowLeft, Lock, User, Truck, ArrowRight, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createOrder } from "./actions"
@@ -25,6 +25,33 @@ export default function CheckoutPage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [checkoutComplete, setCheckoutComplete] = useState(false)
+  
+  const [couponCode, setCouponCode] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState<{code: string, discountValue: number, discountType: string} | null>(null)
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return
+    setIsApplyingCoupon(true)
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        body: JSON.stringify({ code: couponCode, email: formData.email })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setAppliedCoupon(data.coupon)
+        toast.success("Coupon applied successfully!")
+      } else {
+        setAppliedCoupon(null)
+        toast.error(data.error || "Invalid coupon code.")
+      }
+    } catch {
+      toast.error("Failed to apply coupon. Please try again.")
+    } finally {
+      setIsApplyingCoupon(false)
+    }
+  }
 
   useEffect(() => {
     setIsClient(true)
@@ -53,7 +80,8 @@ export default function CheckoutPage() {
         shippingStreet: formData.street,
         shippingCity: formData.city,
         shippingState: formData.state,
-        items: cart
+        items: cart,
+        couponCode: appliedCoupon?.code
       })
       if (res.success) {
         localStorage.removeItem('cart')
@@ -102,8 +130,19 @@ export default function CheckoutPage() {
   }
 
   const subtotal = cart.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0)
+  
+  let discountAmount = 0
+  if (appliedCoupon) {
+     if (appliedCoupon.discountType === "PERCENTAGE") {
+       discountAmount = subtotal * (appliedCoupon.discountValue / 100)
+     } else {
+       discountAmount = appliedCoupon.discountValue
+     }
+     if (discountAmount > subtotal) discountAmount = subtotal
+  }
+
   const shipping = 0
-  const total = subtotal + shipping
+  const total = subtotal - discountAmount + shipping
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-black selection:text-white">
@@ -259,16 +298,45 @@ export default function CheckoutPage() {
                           <span className="text-[9px] font-black text-gray-900 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100 flex items-center h-5">QTY: {item.quantity || 1}</span>
                        </div>
                     </div>
-                    <p className="text-sm font-black text-gray-900 tracking-tight pt-1">Rs. {(item.price * (item.quantity || 1)).toLocaleString()}</p>
+                    <p className="text-sm font-medium text-gray-900 tracking-tight pt-1">Rs. {(item.price * (item.quantity || 1)).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
 
               <div className="pt-8 border-t border-gray-100 space-y-5">
-                <div className="flex justify-between items-center group">
+                
+                {/* Coupon Code Input */}
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="text" 
+                    placeholder="Gift card or discount code" 
+                    value={couponCode}
+                    onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                    className="h-12 flex-1 bg-transparent border-2 border-gray-100 rounded-lg px-4 text-sm font-bold text-gray-900 outline-none focus:border-black transition-all placeholder:font-medium placeholder:text-gray-300"
+                  />
+                  <button 
+                    onClick={handleApplyCoupon}
+                    disabled={isApplyingCoupon || !couponCode.trim()}
+                    className="h-12 px-6 bg-black text-white font-bold text-xs uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-gray-800 transition-colors"
+                  >
+                    {isApplyingCoupon ? "..." : "Apply"}
+                  </button>
+                </div>
+
+                <div className="flex justify-between items-center group pt-4">
                   <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Subtotal</span>
                   <span className="text-sm font-bold text-gray-900">Rs. {subtotal.toLocaleString()}</span>
                 </div>
+                
+                {appliedCoupon && (
+                  <div className="flex justify-between items-center group">
+                    <span className="text-xs font-black text-[#D4AF37] uppercase tracking-widest flex items-center gap-2">
+                      <Tag className="w-3.5 h-3.5" /> Discount ({appliedCoupon.code})
+                    </span>
+                    <span className="text-sm font-bold text-[#D4AF37]">- Rs. {discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
+                
                 <div className="flex justify-between items-center group">
                   <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Shipping</span>
                   <span className="text-[9px] font-bold text-green-600 uppercase tracking-[0.2em] bg-green-50 px-2 py-0.5 rounded-full">Complimentary</span>
@@ -278,7 +346,7 @@ export default function CheckoutPage() {
                   <div className="flex justify-between items-end">
                     <div className="space-y-1">
                       <span className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em]">Total Order Value</span>
-                      <p className="text-3xl font-black text-gray-900 tracking-tighter leading-none">Rs. {total.toLocaleString()}</p>
+                      <p className="text-3xl font-medium text-gray-900 tracking-tighter leading-none">Rs. {total.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
