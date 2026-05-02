@@ -4,10 +4,13 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { getSession } from "@/lib/auth"
+import { hasPermission, PERMISSIONS } from "@/lib/permissions"
 
 export async function getRoles() {
   const session = await getSession()
-  if (!session) throw new Error("Unauthorized")
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.ROLES_VIEW)) {
+    throw new Error("Unauthorized: Roles view permission required.")
+  }
 
   return await prisma.role.findMany({
     include: {
@@ -21,7 +24,9 @@ export async function getRoles() {
 
 export async function getRole(id: string) {
   const session = await getSession()
-  if (!session) throw new Error("Unauthorized")
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.ROLES_VIEW)) {
+    throw new Error("Unauthorized: Roles view permission required.")
+  }
 
   return await prisma.role.findUnique({
     where: { id }

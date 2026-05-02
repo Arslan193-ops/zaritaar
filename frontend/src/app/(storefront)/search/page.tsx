@@ -48,7 +48,7 @@ export default async function SearchPage({
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-12">
               {products.map((product: any) => (
                 <Link key={product.id} href={`/product/${product.id}`} className="group block space-y-4">
-                  <div className="aspect-[3/4] bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 shadow-sm transition-all duration-500">
+                  <div className="aspect-[3/5] bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 shadow-sm transition-all duration-500">
                     {product.image ? (
                     <CdnImage 
                       source={product.image} 

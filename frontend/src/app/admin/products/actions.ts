@@ -9,6 +9,10 @@ import { client } from "@/lib/sanity"
 import { uploadMultipleFilesToSanity, getSanityUrl } from "@/lib/sanity-upload"
 
 export async function getCategories() {
+  const session = await getSession()
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.PRODUCTS_VIEW)) {
+    throw new Error("Unauthorized: Products view permission required.")
+  }
   return await prisma.category.findMany({
     orderBy: { name: "asc" }
   })
@@ -25,6 +29,11 @@ export async function getPaginatedProducts({
   search?: string, 
   status?: string 
 }) {
+  const session = await getSession()
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.PRODUCTS_VIEW)) {
+    throw new Error("Unauthorized: Products view permission required.")
+  }
+
   const validPage = Math.max(1, page)
   const skip = (validPage - 1) * pageSize
   
@@ -74,7 +83,12 @@ export async function getPaginatedProducts({
 }
 
 export async function getProduct(id: string) {
-  return await prisma.product.findUnique({
+  const session = await getSession()
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.PRODUCTS_VIEW)) {
+    throw new Error("Unauthorized: Products view permission required.")
+  }
+
+  const product = await prisma.product.findUnique({
     where: { id },
     include: {
       category: true,
@@ -82,6 +96,17 @@ export async function getProduct(id: string) {
       images: { orderBy: { order: "asc" } }
     }
   })
+
+  if (!product) return null
+
+  // Security: Remove costPrice if user doesn't have edit permissions
+  // (Assuming costPrice is only for those who can manage products)
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.PRODUCTS_EDIT)) {
+    const { costPrice, ...sanitizedProduct } = product
+    return sanitizedProduct
+  }
+
+  return product
 }
 
 export async function createProduct(formData: FormData) {
@@ -169,12 +194,19 @@ export async function createProduct(formData: FormData) {
 
     // 4. Final Sync to Prisma with URLs
     const sizeChartUrls = sizeChartAssetIds.map((id: string) => getSanityUrl(id))
+    const imagePreviewUrls = imageAssetIds.map((id: string) => getSanityUrl(id))
     
     await prisma.product.update({
       where: { id: product.id },
       data: { 
         id: sanityProduct._id,
-        sizeChart: JSON.stringify(sizeChartUrls) 
+        sizeChart: JSON.stringify(sizeChartUrls),
+        images: {
+          create: imagePreviewUrls.map((url: string, index: number) => ({
+            url,
+            order: index
+          }))
+        }
       }
     })
     
@@ -311,10 +343,24 @@ export async function updateProduct(id: string, formData: FormData) {
     const newScUrls = sizeChartAssetIds.map((assetId: string) => getSanityUrl(assetId))
     const finalScUrls = [...existingCharts.map((c: any) => c.url), ...newScUrls]
 
-    await prisma.product.update({
-      where: { id },
-      data: { sizeChart: JSON.stringify(finalScUrls) }
-    })
+    const newImageUrls = imageAssetIds.map((assetId: string) => getSanityUrl(assetId))
+    const finalImageUrls = [...existingImages.map((c: any) => c.url), ...newImageUrls]
+
+    await prisma.$transaction([
+      prisma.productImage.deleteMany({ where: { productId: id } }),
+      prisma.product.update({
+        where: { id },
+        data: { 
+          sizeChart: JSON.stringify(finalScUrls),
+          images: {
+            create: finalImageUrls.filter(url => !!url).map((url: string, index: number) => ({
+              url,
+              order: index
+            }))
+          }
+        }
+      })
+    ])
 
     // Sync Variants (Delete all and recreate)
     await prisma.productVariant.deleteMany({ where: { productId: id } })

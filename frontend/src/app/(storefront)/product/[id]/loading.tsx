@@ -7,12 +7,12 @@ export default function ProductLoading() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           {/* Gallery Skeleton */}
           <div className="w-full space-y-4">
-             <div className="aspect-[3/4] bg-gray-200 animate-pulse rounded-lg w-full" />
-             <div className="grid grid-cols-4 gap-4">
-                <div className="aspect-square bg-gray-200 animate-pulse rounded-lg" />
-                <div className="aspect-square bg-gray-200 animate-pulse rounded-lg" />
-                <div className="aspect-square bg-gray-200 animate-pulse rounded-lg" />
-                <div className="aspect-square bg-gray-200 animate-pulse rounded-lg" />
+             <div className="aspect-[2/3] bg-gray-200 animate-pulse rounded-lg w-full" />
+             <div className="flex gap-2 mt-4">
+                <div className="aspect-[3/5] bg-gray-200 animate-pulse rounded-lg flex-1" />
+                <div className="aspect-[3/5] bg-gray-200 animate-pulse rounded-lg flex-1" />
+                <div className="aspect-[3/5] bg-gray-200 animate-pulse rounded-lg flex-1" />
+                <div className="aspect-[3/5] bg-gray-200 animate-pulse rounded-lg flex-1" />
              </div>
           </div>
 

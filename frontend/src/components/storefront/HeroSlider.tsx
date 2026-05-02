@@ -15,6 +15,7 @@ interface HeroSliderProps {
   badgeText?: string
   showHeadline?: boolean
   showButton?: boolean
+  quality?: number
 }
 
 export default function HeroSlider({ 
@@ -25,7 +26,8 @@ export default function HeroSlider({
   buttonLink,
   badgeText,
   showHeadline = true,
-  showButton = true
+  showButton = true,
+  quality = 80
 }: HeroSliderProps) {
   useRenderGuard("HeroSlider", 30)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -35,7 +37,7 @@ export default function HeroSlider({
     if (images.length <= 1) return
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length)
-    }, 5000)
+    }, 7000)
     return () => clearInterval(timer)
   }, [images.length])
 
@@ -44,14 +46,14 @@ export default function HeroSlider({
   }
 
   return (
-    <div className="relative h-[65vh] md:h-[85vh] w-full overflow-hidden bg-[#fafafa]">
-      <AnimatePresence mode="wait">
+    <div className="relative h-[65vh] md:h-[85vh] w-full overflow-hidden bg-black">
+      <AnimatePresence>
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, scale: 1.05 }}
+          initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          exit={{ opacity: 0, scale: 1 }}
+          transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0 z-0"
         >
           <CdnImage
@@ -59,6 +61,7 @@ export default function HeroSlider({
             alt={`Slide ${currentIndex + 1}`}
             fill
             sizes="100vw"
+            quality={quality}
             className="object-cover"
             priority
           />

@@ -9,11 +9,12 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ShoppingBag, Search, ChevronLeft, ChevronRight, X, Loader2, ArrowRight, Menu, ShoppingCart, Trash2 } from "lucide-react"
 import { getStoreCategories, searchStoreProducts, getPublicSettings } from "@/lib/storefront-actions"
 import { useRenderGuard } from "@/lib/debug-utils"
+import { toast } from "sonner"
 
-export default function HeaderClient({ settings }: { settings?: any }) {
+export default function HeaderClient({ settings, categories: initialCategories = [] }: { settings?: any, categories?: any[] }) {
   useRenderGuard("HeaderClient", 40)
   const [cartCount, setCartCount] = useState(0)
-  const [categories, setCategories] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>(initialCategories)
   const [liveSettings, setLiveSettings] = useState(settings)
   const [announcementIndex, setAnnouncementIndex] = useState(0)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -50,20 +51,29 @@ export default function HeaderClient({ settings }: { settings?: any }) {
     }
 
     const fetchInitialData = async () => {
-      const [cats, settingsData] = await Promise.all([
-        getStoreCategories(),
-        !settings ? getPublicSettings() : Promise.resolve(null)
-      ])
-      setCategories(cats)
-      if (settingsData) setLiveSettings(settingsData)
+      // Only fetch if not provided as props
+      if (categories.length === 0 || !settings) {
+        const [cats, settingsData] = await Promise.all([
+          categories.length === 0 ? getStoreCategories() : Promise.resolve(categories),
+          !settings ? getPublicSettings() : Promise.resolve(null)
+        ])
+        if (cats.length > 0) setCategories(cats)
+        if (settingsData) setLiveSettings(settingsData)
+      }
     }
 
     updateCartCount()
     fetchInitialData()
     setIsMounted(true)
     
+    const openCart = () => setIsCartOpen(true)
+    
     window.addEventListener("cartUpdated", updateCartCount)
-    return () => window.removeEventListener("cartUpdated", updateCartCount)
+    window.addEventListener("openCart", openCart)
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount)
+      window.removeEventListener("openCart", openCart)
+    }
   }, [settings])
 
   useEffect(() => {
@@ -116,10 +126,25 @@ export default function HeaderClient({ settings }: { settings?: any }) {
   };
 
   const removeFromCart = (index: number) => {
-    const newCart = [...cartItems]
-    newCart.splice(index, 1)
-    localStorage.setItem("cart", JSON.stringify(newCart))
-    window.dispatchEvent(new Event("cartUpdated"))
+    const item = cartItems[index];
+    toast(`Remove "${item.title}" from bag?`, {
+      duration: Infinity,
+      description: "This action cannot be undone.",
+      action: {
+        label: "Remove",
+        onClick: () => {
+          const newCart = [...cartItems]
+          newCart.splice(index, 1)
+          localStorage.setItem("cart", JSON.stringify(newCart))
+          window.dispatchEvent(new Event("cartUpdated"))
+          toast.success("Item removed from bag")
+        }
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {}
+      }
+    })
   }
 
   const cartTotal = cartItems.reduce((total, item) => total + (item.price || 0) * (item.quantity || 1), 0)

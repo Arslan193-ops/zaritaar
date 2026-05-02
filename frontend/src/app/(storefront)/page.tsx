@@ -35,6 +35,7 @@ export default async function Home() {
           badgeText={settings?.heroBadge ?? undefined}
           showHeadline={settings?.showHeroHeadline}
           showButton={settings?.showHeroButton}
+          quality={75}
         />
       ) : (
         /* Fallback Static Hero if no slider images are set */
@@ -99,12 +100,13 @@ export default async function Home() {
                   prefetch={false}
                   className="group block space-y-2 md:space-y-3 flex-shrink-0 w-[48%] md:w-auto"
                 >
-                  <div className="aspect-[2/3] bg-gray-50 rounded-xl md:rounded-2xl overflow-hidden relative shadow-sm transition-all duration-300 group-hover:shadow-md border border-[#D4AF37]/10">
+                  <div className="aspect-[3/5] bg-gray-50 rounded-xl md:rounded-2xl overflow-hidden relative shadow-sm transition-all duration-300 group-hover:shadow-md border border-[#D4AF37]/10">
                       {cat.image ? (
                         <CdnImage 
                           source={cat.image} 
                           alt={cat.name}
                           fill
+                          cdnWidth={600}
                           className="object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                      ) : (

@@ -3,6 +3,7 @@ import { CdnImage } from "./CdnImage"
 import Link from "next/link"
 import Image from "next/image"
 import { Star, ShoppingBag } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface ProductCardProps {
   product: BaseProduct
@@ -17,13 +18,17 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
       <Link
         href={`/product/${product.id}`}
         prefetch={false}
-        className="block relative aspect-[2/3] bg-gray-50 rounded-2xl overflow-hidden mb-3 sm:mb-6 border border-[#D4AF37]/30 group-hover:border-[#D4AF37] transition-all duration-500 shadow-sm"
+        className={cn(
+          "block relative bg-gray-50 rounded-2xl overflow-hidden mb-3 sm:mb-6 border border-[#D4AF37]/30 group-hover:border-[#D4AF37] transition-all duration-500 shadow-sm",
+          isGrid ? "aspect-[3/5]" : "aspect-[2/3] sm:aspect-[3/5]"
+        )}
       >
         {product.image ? (
           <CdnImage
             source={product.image}
             alt={product.title}
             fill
+            cdnWidth={800}
             sizes={!isGrid ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" : "(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 20vw"}
             className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
           />

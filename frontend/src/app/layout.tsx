@@ -41,6 +41,8 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
       <head>
+        <link rel="preconnect" href="https://cdn.sanity.io" />
+        <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         {settings?.facebookPixelId && (
           <Script id="fb-pixel" strategy="afterInteractive">
             {`
@@ -71,7 +73,32 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans">
         {children}
-        <Toaster position="top-center" richColors closeButton />
+        <Toaster 
+          position="top-right"
+          theme="dark"
+          toastOptions={{
+            style: {
+              background: '#000',
+              color: '#fff',
+              border: '1px solid rgba(212, 175, 55, 0.3)',
+              borderLeft: '4px solid #D4AF37',
+              borderRadius: '12px',
+              padding: '16px',
+            },
+            descriptionClassName: 'text-gray-400 font-medium',
+            actionButtonStyle: {
+              background: '#D4AF37',
+              color: '#000',
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              fontSize: '10px',
+              letterSpacing: '0.1em',
+              borderRadius: '8px',
+            },
+            className: 'font-sans',
+          }}
+          closeButton 
+        />
         <SpeedInsights />
         <Analytics />
       </body>

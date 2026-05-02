@@ -13,8 +13,8 @@ export async function getPaginatedOrders({
   pageSize?: number 
 }) {
   const session = await getSession()
-  if (!session) {
-    throw new Error("Unauthorized: Active session required.")
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.ORDERS_VIEW)) {
+    throw new Error("Unauthorized: Orders view permission required.")
   }
 
   const validPage = Math.max(1, page)

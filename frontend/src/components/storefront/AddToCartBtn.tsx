@@ -88,7 +88,13 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
     window.dispatchEvent(new Event('cartUpdated'))
     
     if (!silent) {
-       toast.success("Item added to your bag.")
+       toast.success("Added to Bag", {
+         description: `${product.title} has been added to your bag.`,
+         action: {
+           label: "View Bag",
+           onClick: () => window.dispatchEvent(new Event('openCart'))
+         }
+       })
        setTimeout(() => setAdding(false), 1500)
     }
     return true
@@ -273,7 +279,7 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
           </AnimatePresence>
         </div>
 
-        <div className="h-[1px] w-full bg-gray-100" />
+        <div className="h-[1px] w-full bg-[#D4AF37]/50" />
       </div>
 
       {/* Options Section */}
@@ -317,9 +323,27 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
       <div className="space-y-4">
         <h3 className="text-sm font-medium text-gray-900">Quantity</h3>
         <div className="flex items-center w-32 h-12 border border-gray-100 rounded-xl overflow-hidden shadow-sm bg-white">
-          <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold">-</button>
-          <div className="w-12 h-full flex items-center justify-center font-black text-xs border-x border-gray-50">{quantity}</div>
-          <button onClick={() => setQuantity(Math.min(currentStock, quantity + 1))} className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold">+</button>
+          <button 
+            onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+            className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold"
+          >
+            -
+          </button>
+          <div className="w-12 h-full flex items-center justify-center font-black text-xs border-x border-gray-50">
+            {currentStock > 0 ? quantity : 0}
+          </div>
+          <button 
+            onClick={() => {
+              if (quantity < currentStock) {
+                setQuantity(quantity + 1)
+              } else {
+                toast.error(`Only ${currentStock} items available.`)
+              }
+            }} 
+            className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold"
+          >
+            +
+          </button>
         </div>
       </div>
 
@@ -334,7 +358,14 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
              {currentStock === 0 ? "Out of Stock" : (adding ? "Added" : "Add to Cart")}
           </button>
           <button 
-            onClick={() => { const success = handleAddToCart(true); if (success) router.push("/checkout") }} 
+            onClick={() => {
+              if (quantity > currentStock) {
+                toast.error(`Only ${currentStock} items available in stock.`)
+                return
+              }
+              const success = handleAddToCart(true); 
+              if (success) router.push("/checkout") 
+            }} 
             disabled={currentStock === 0}
             className={cn("h-14 font-bold text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 rounded", currentStock === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-black text-white hover:bg-neutral-800")}
           >

@@ -1,6 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma"
+import { revalidatePath } from "next/cache"
 
 export async function createOrder(data: {
   customerName: string
@@ -64,17 +65,23 @@ export async function createOrder(data: {
         const finalPrice = variantPrice ?? (product.discountedPrice ?? product.basePrice)
         serverTotalAmount += finalPrice * item.quantity
 
-        // DECREMENT STOCK
+        // ATOMIC STOCK DECREMENT (Prevents race conditions)
         if (variantId) {
-           await tx.productVariant.update({
-             where: { id: variantId },
+           const updateResult = await tx.productVariant.updateMany({
+             where: { id: variantId, stock: { gte: item.quantity } },
              data: { stock: { decrement: item.quantity } }
            })
+           if (updateResult.count === 0) {
+             throw new Error(`Insufficient stock for "${product.title}". It may have been purchased by another customer just now.`)
+           }
         } else {
-           await tx.product.update({
-             where: { id: item.productId },
+           const updateResult = await tx.product.updateMany({
+             where: { id: item.productId, stock: { gte: item.quantity } },
              data: { stock: { decrement: item.quantity } }
            })
+           if (updateResult.count === 0) {
+             throw new Error(`Insufficient stock for "${product.title}". It may have been purchased by another customer just now.`)
+           }
         }
 
         orderItems.push({
@@ -149,6 +156,9 @@ export async function createOrder(data: {
       })
     })
 
+    revalidatePath("/admin/products", "page")
+    revalidatePath(`/product`, "layout")
+
     return { success: true, orderId: order.id }
   } catch (error: any) {
     console.error("ORDER_ERROR:", error.message)
@@ -156,10 +166,17 @@ export async function createOrder(data: {
   }
 }
 
-export async function getOrderStatus(orderId: string) {
+export async function getOrderStatus(orderId: string, email: string) {
   try {
+    if (!orderId || !email) {
+      return { success: false, error: "Order ID and Email are required." }
+    }
+
     const order = await prisma.order.findUnique({
-      where: { id: orderId },
+      where: { 
+        id: orderId,
+        customerEmail: email.toLowerCase()
+      },
       select: {
         id: true,
         totalAmount: true,
@@ -193,7 +210,7 @@ export async function getOrderStatus(orderId: string) {
     })
 
     if (!order) {
-      return { success: false, error: "Order not found" }
+      return { success: false, error: "Order not found with provided ID and Email." }
     }
 
     return { success: true, order }

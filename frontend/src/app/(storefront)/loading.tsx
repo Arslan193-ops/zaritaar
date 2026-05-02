@@ -22,7 +22,7 @@ export default function HomeLoading() {
           <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="flex-shrink-0 w-[48%] md:w-auto flex flex-col items-center gap-3">
-                <div className="aspect-[2/3] w-full bg-gray-200 animate-pulse rounded-xl md:rounded-2xl border border-[#D4AF37]/5" />
+                <div className="aspect-[2/3] sm:aspect-[3/5] w-full bg-gray-200 animate-pulse rounded-xl md:rounded-2xl border border-[#D4AF37]/5" />
                 <div className="h-3 w-1/2 bg-gray-200 animate-pulse rounded-sm mt-1" />
               </div>
             ))}
@@ -40,7 +40,7 @@ export default function HomeLoading() {
          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-8">
             {Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="flex flex-col gap-2">
-                 <div className="w-full aspect-[2/3] bg-gray-200 animate-pulse rounded-lg md:rounded-xl" />
+                 <div className="w-full aspect-[2/3] sm:aspect-[3/5] bg-gray-200 animate-pulse rounded-lg md:rounded-xl" />
                  <div className="w-3/4 h-4 bg-gray-200 animate-pulse mt-2 md:mt-4 rounded-sm" />
                  <div className="w-1/2 h-3 bg-gray-200 animate-pulse rounded-sm" />
               </div>

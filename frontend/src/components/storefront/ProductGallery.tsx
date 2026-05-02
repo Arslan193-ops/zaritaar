@@ -128,7 +128,7 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
               key={img._key || i} 
               onClick={() => setActiveIndex(i)}
               className={cn(
-                "relative aspect-[2/3] w-16 lg:w-full shrink-0 bg-gray-50 rounded-lg overflow-hidden border-2 transition-all duration-300",
+                "relative aspect-[3/5] w-16 lg:w-full shrink-0 bg-gray-50 rounded-lg overflow-hidden border-2 transition-all duration-300",
                 activeIndex === i ? "border-[#D4AF37] shadow-sm" : "border-transparent opacity-60 hover:opacity-100"
               )}
             >
@@ -148,7 +148,7 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
         <div 
           onClick={() => setIsZoomed(true)}
           className="bg-white rounded-2xl overflow-hidden relative w-full max-w-[500px] border border-[#D4AF37]/30 group shadow-sm transition-all duration-700 max-h-[80vh] cursor-zoom-in"
-          style={{ aspectRatio: "3/4" }}
+          style={{ aspectRatio: "2/3" }}
         >
           <CdnImage 
             key={activeIndex}

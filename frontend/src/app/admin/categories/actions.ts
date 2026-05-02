@@ -7,6 +7,10 @@ import { getSession } from "@/lib/auth"
 import { hasPermission, PERMISSIONS } from "@/lib/permissions"
 
 export async function getCategories() {
+  const session = await getSession()
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.CATEGORIES_VIEW)) {
+    throw new Error("Unauthorized: Categories view permission required.")
+  }
   return await client.fetch(`*[_type == "category"] | order(name asc) {
     "id": _id,
     name,

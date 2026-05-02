@@ -28,7 +28,7 @@ export default function ShopLoading() {
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-12 sm:gap-x-6">
                {Array.from({ length: 8 }).map((_, idx) => (
                  <div key={idx} className="space-y-6 flex flex-col items-center">
-                   <div className="w-full aspect-[3/4] bg-gray-50 animate-pulse rounded-sm" />
+                   <div className="w-full aspect-[2/3] sm:aspect-[3/5] bg-gray-50 animate-pulse rounded-sm" />
                    <div className="w-2/3 h-3 bg-gray-50 animate-pulse rounded-sm" />
                    <div className="w-1/2 h-3 bg-gray-50 animate-pulse rounded-sm" />
                    <div className="w-full h-10 bg-gray-50 animate-pulse rounded-sm" />

@@ -5,10 +5,13 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { getSession, deleteSession } from "@/lib/auth"
+import { hasPermission, PERMISSIONS } from "@/lib/permissions"
 
 export async function getUsers() {
   const session = await getSession()
-  if (!session) throw new Error("Unauthorized")
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.USERS_VIEW)) {
+    throw new Error("Unauthorized: Users view permission required.")
+  }
 
   return await prisma.user.findMany({
     select: {
@@ -76,5 +79,9 @@ export async function logout() {
 }
 
 export async function getRoles() {
+  const session = await getSession()
+  if (!hasPermission(session?.user?.role?.permissions || null, PERMISSIONS.ROLES_VIEW)) {
+    throw new Error("Unauthorized: Roles view permission required.")
+  }
   return await prisma.role.findMany()
 }
