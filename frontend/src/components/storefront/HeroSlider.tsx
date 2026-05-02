@@ -31,30 +31,47 @@ export default function HeroSlider({
 }: HeroSliderProps) {
   useRenderGuard("HeroSlider", 30)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [prevIndex, setPrevIndex] = useState(0)
 
   // Auto-scroll logic
   useEffect(() => {
     if (images.length <= 1) return
     const timer = setInterval(() => {
+      setPrevIndex(currentIndex)
       setCurrentIndex((prev) => (prev + 1) % images.length)
     }, 7000)
     return () => clearInterval(timer)
-  }, [images.length])
+  }, [images.length, currentIndex])
 
   if (images.length === 0) {
      return null // Fallback to parent static hero if no images
   }
 
   return (
-    <div className="relative h-[65vh] md:h-[85vh] w-full overflow-hidden bg-black">
-      <AnimatePresence>
+    <div className="relative h-[65vh] md:h-[85vh] w-full overflow-hidden">
+      {/* Background Layer (Previous Slide) to prevent black flash while loading on live site */}
+      <div className="absolute inset-0 z-0">
+        <CdnImage
+          key={`bg-${prevIndex}`}
+          source={images[prevIndex]}
+          alt=""
+          fill
+          sizes="100vw"
+          quality={20}
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
+
+      <AnimatePresence initial={false}>
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1 }}
-          transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute inset-0 z-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+          className="absolute inset-0 z-10"
         >
           <CdnImage
             source={images[currentIndex]}
