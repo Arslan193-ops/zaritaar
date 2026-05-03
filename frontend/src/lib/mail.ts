@@ -46,7 +46,12 @@ export async function sendOrderConfirmationEmail(orderData: {
                         <td style="color: #999999; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 8px;">Order Reference</td>
                       </tr>
                       <tr>
-                        <td style="color: #1a1a1a; font-size: 18px; font-weight: bold; padding-bottom: 24px;">#${orderData.orderId.slice(-8).toUpperCase()}</td>
+                        <td style="color: #1a1a1a; font-size: 18px; font-weight: bold; padding-bottom: 8px;">#${orderData.orderId.slice(-8).toUpperCase()}</td>
+                      </tr>
+                      <tr>
+                        <td style="color: #D4AF37; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 24px;">
+                          (Please copy this ID to track your order status)
+                        </td>
                       </tr>
                       <tr>
                         <td style="color: #999999; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 8px;">Total Amount</td>
@@ -80,17 +85,38 @@ export async function sendOrderConfirmationEmail(orderData: {
     </html>
   `;
 
+  if (!process.env.BREVO_API_KEY) {
+    console.error("CRITICAL: BREVO_API_KEY is missing from environment variables.");
+    return { success: false, error: "API Key missing" };
+  }
+
+  if (!process.env.SENDER_EMAIL) {
+    console.error("CRITICAL: SENDER_EMAIL is missing from environment variables.");
+    return { success: false, error: "Sender email missing" };
+  }
+
+  console.log(`Attempting to send email to: ${orderData.toEmail} via Brevo...`);
+
   try {
     const result = await client.transactionalEmails.sendTransacEmail({
         subject: "Order Confirmed - ZARITAAR",
-        sender: { email: process.env.SENDER_EMAIL as string, name: process.env.SENDER_NAME as string },
+        sender: { 
+          email: process.env.SENDER_EMAIL as string, 
+          name: process.env.SENDER_NAME || "Zaritaar Boutique" 
+        },
         to: [{ email: orderData.toEmail, name: orderData.customerName }],
         htmlContent
     });
-    console.log("Brevo Email Sent Success");
+    
+    console.log("✅ Brevo Email Sent Successfully:", result);
     return { success: true };
-  } catch (error) {
-    console.error("Brevo Email Error Details:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("❌ Brevo Email Failed!");
+    console.error("Error Name:", error.name);
+    console.error("Error Message:", error.message);
+    if (error.response) {
+      console.error("Response Data:", JSON.stringify(error.response.data, null, 2));
+    }
+    return { success: false, error: error.message };
   }
 }

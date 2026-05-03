@@ -110,21 +110,22 @@ export default function TrackOrderPage() {
               <div className="bg-gray-50/50 rounded-[2.5rem] p-8 md:p-12 border border-gray-100">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
                   <div>
-                    <h3 className="text-2xl font-serif text-gray-900">Current Progress</h3>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Order Ref: {order.id.slice(-8).toUpperCase()}</p>
+                    <p className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.4em] mb-1">Status Report</p>
+                    <h3 className="text-3xl font-serif text-gray-900">Current Progress</h3>
+                    <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Order Ref: {order.id.slice(-8).toUpperCase()}</p>
                   </div>
-                  <div className="px-6 py-2.5 bg-black text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-black/10">
+                  <div className="px-8 py-3 bg-[#D4AF37]/5 text-[#D4AF37] border border-[#D4AF37]/20 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em]">
                     {order.status}
                   </div>
                 </div>
 
-                <div className="relative flex flex-col md:flex-row justify-between gap-8 md:gap-0">
+                <div className="relative flex flex-col md:flex-row justify-between gap-12 md:gap-0 mt-8">
                   {/* Progress Line */}
-                  <div className="absolute top-5 left-5 md:left-0 md:w-full h-full md:h-[2px] bg-gray-200 -z-0 hidden md:block">
+                  <div className="absolute top-6 left-6 md:left-0 md:w-full h-full md:h-[1px] bg-gray-100 -z-0 hidden md:block">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${((getStatusStep(order.status) - 1) / 3) * 100}%` }}
-                      className="h-full bg-gray-900"
+                      className="h-full bg-gradient-to-r from-[#D4AF37]/20 to-[#D4AF37]"
                     />
                   </div>
 
@@ -135,20 +136,32 @@ export default function TrackOrderPage() {
                     { label: "Delivered", icon: MapPin, step: 4 },
                   ].map((s, idx) => {
                     const active = getStatusStep(order.status) >= s.step
+                    const isCurrent = getStatusStep(order.status) === s.step
+                    
                     return (
-                      <div key={idx} className="relative z-10 flex md:flex-col items-center gap-4 md:gap-6">
+                      <div key={idx} className="relative z-10 flex md:flex-col items-center gap-6 md:gap-8">
                         <div className={cn(
-                          "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border-2",
-                          active ? "bg-black border-black text-white shadow-xl shadow-black/20" : "bg-white border-gray-100 text-gray-200"
+                          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-700 border shadow-sm",
+                          active 
+                            ? "bg-white border-[#D4AF37] text-[#D4AF37] shadow-lg shadow-[#D4AF37]/10" 
+                            : "bg-white border-gray-100 text-gray-200"
                         )}>
-                          <s.icon className="w-5 h-5" />
+                          <s.icon className={cn("w-5 h-5", isCurrent && "animate-pulse")} />
                         </div>
-                        <span className={cn(
-                          "text-[10px] font-black uppercase tracking-widest",
-                          active ? "text-gray-900" : "text-gray-200"
-                        )}>
-                          {s.label}
-                        </span>
+                        <div className="flex flex-col md:items-center">
+                          <span className={cn(
+                            "text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500",
+                            active ? "text-gray-900" : "text-gray-300"
+                          )}>
+                            {s.label}
+                          </span>
+                          {isCurrent && (
+                            <motion.span 
+                              layoutId="current-dot"
+                              className="w-1 h-1 bg-[#D4AF37] rounded-full mt-2"
+                            />
+                          )}
+                        </div>
                       </div>
                     )
                   })}

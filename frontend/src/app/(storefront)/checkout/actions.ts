@@ -181,9 +181,14 @@ export async function getOrderStatus(orderId: string) {
       return { success: false, error: "Order ID is required." }
     }
 
-    const order = await prisma.order.findUnique({
+    // Support searching by full UUID or the last 8 characters (as sent in emails)
+    const order = await prisma.order.findFirst({
       where: { 
-        id: orderId,
+        OR: [
+          { id: orderId },
+          { id: { endsWith: orderId.toLowerCase() } },
+          { id: { endsWith: orderId.toUpperCase() } }
+        ]
       },
       select: {
         id: true,
@@ -218,7 +223,7 @@ export async function getOrderStatus(orderId: string) {
     })
 
     if (!order) {
-      return { success: false, error: "Order not found with provided ID and Email." }
+      return { success: false, error: "Order not found. Please check your Reference ID." }
     }
 
     return { success: true, order }

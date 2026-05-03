@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
 import { CheckCircle2, ShoppingBag, ShieldCheck, ArrowLeft, Lock, User, Truck, ArrowRight, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -63,6 +64,16 @@ export default function CheckoutPage() {
     setIsClient(true)
     const storedCart = JSON.parse(localStorage.getItem('cart') || '[]')
     setCart(storedCart)
+
+    // Load saved customer info for faster checkout
+    const savedInfo = localStorage.getItem('zaritaar_customer_info')
+    if (savedInfo) {
+      try {
+        setFormData(JSON.parse(savedInfo))
+      } catch (e) {
+        console.error("Failed to parse saved info")
+      }
+    }
   }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,6 +103,9 @@ export default function CheckoutPage() {
         couponCode: appliedCoupon?.code
       })
       if (res.success) {
+        // Save customer info for future auto-fill
+        localStorage.setItem('zaritaar_customer_info', JSON.stringify(formData))
+        
         localStorage.removeItem('cart')
         setCart([])
         window.dispatchEvent(new Event('cartUpdated'))
@@ -118,25 +132,64 @@ export default function CheckoutPage() {
 
   if (checkoutComplete) {
     return (
-      <div className="min-h-screen bg-white flex flex-col font-sans">
-        <main className="flex-1 flex items-center justify-center p-8 animate-in zoom-in duration-700">
-          <div className="max-w-2xl w-full bg-white border border-gray-100 p-16 text-center space-y-12">
-            <div className="w-24 h-24 border border-gray-900 flex items-center justify-center mx-auto p-1">
-               <div className="w-full h-full border border-gray-50 flex items-center justify-center bg-gray-50/50">
-                  <CheckCircle2 className="w-10 h-10 text-gray-900" />
-               </div>
+      <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-black selection:text-white">
+        <main className="flex-1 flex items-center justify-center p-6 md:p-12 animate-in fade-in zoom-in duration-1000">
+          <div className="max-w-3xl w-full bg-white text-center space-y-16">
+            
+            {/* Celebration Icon */}
+            <div className="relative mx-auto w-32 h-32 flex items-center justify-center">
+               <motion.div 
+                 initial={{ scale: 0, rotate: -45 }}
+                 animate={{ scale: 1, rotate: 0 }}
+                 transition={{ type: "spring", damping: 12, stiffness: 100, delay: 0.2 }}
+                 className="absolute inset-0 bg-[#D4AF37]/5 rounded-full border border-[#D4AF37]/20"
+               />
+               <motion.div 
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 transition={{ delay: 0.5 }}
+                 className="relative w-16 h-16 bg-black rounded-full flex items-center justify-center shadow-2xl shadow-black/20"
+               >
+                  <CheckCircle2 className="w-8 h-8 text-[#D4AF37]" />
+               </motion.div>
             </div>
-            <div className="space-y-4">
-              <h2 className="text-3xl font-thin text-gray-900 uppercase tracking-tight">Transmission_Success</h2>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] leading-relaxed max-w-xs mx-auto">
-                Ledger entry confirmed. Your ARCHIVE selection has been routed for dispatch.
-              </p>
+
+            {/* Success Messaging */}
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-3 mb-2">
+                <span className="w-12 h-[1px] bg-[#D4AF37]" />
+                <p className="text-[11px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">Confirmed</p>
+                <span className="w-12 h-[1px] bg-[#D4AF37]" />
+              </div>
+              <h2 className="text-4xl md:text-6xl font-serif font-bold text-gray-900 tracking-tight">Thank You.</h2>
+              <div className="space-y-4 max-w-lg mx-auto">
+                <p className="text-lg text-gray-600 font-medium leading-relaxed">
+                  Your order has been successfully placed and is now in our careful hands.
+                </p>
+                <p className="text-xs text-gray-400 uppercase tracking-widest leading-loose">
+                  A digital receipt and confirmation details have been dispatched to your email address.
+                </p>
+              </div>
             </div>
-            <Link href="/">
-              <button className="bg-black hover:bg-neutral-800 text-white px-12 py-5 font-black text-[10px] uppercase tracking-[0.4em] transition-all rounded-xl shadow-lg shadow-black/10">
-                Return to Boutique
-              </button>
-            </Link>
+
+            {/* Action Matrix */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 pt-4">
+              <Link href="/track-order" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto px-10 py-5 bg-black text-white font-black text-[11px] uppercase tracking-[0.3em] rounded-2xl hover:bg-neutral-800 transition-all active:scale-[0.98] shadow-xl shadow-black/10">
+                  Track Your Order
+                </button>
+              </Link>
+              <Link href="/shop" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto px-10 py-5 bg-white text-black border border-gray-100 font-black text-[11px] uppercase tracking-[0.3em] rounded-2xl hover:border-black transition-all active:scale-[0.98]">
+                  Back to Boutique
+                </button>
+              </Link>
+            </div>
+
+            {/* Support Footer */}
+            <div className="pt-12 border-t border-gray-50">
+               <p className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">Questions about your order? Contact boutique support.</p>
+            </div>
           </div>
         </main>
       </div>
