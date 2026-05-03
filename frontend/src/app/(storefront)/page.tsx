@@ -83,45 +83,47 @@ export default async function Home() {
       {/* Trust Signals removed temporarily per user request */}
 
       {/* ALL COLLECTIONS SECTION */}
-      <section className="bg-[#f7f4e9] pt-4 pb-2 md:py-10 border-b border-gray-100">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-          <h2 className="text-center text-lg md:text-3xl font-bold text-gray-900 mb-6 md:mb-10 tracking-[0.2em] uppercase leading-relaxed">ALL COLLECTIONS</h2>
+      <section className="bg-[#f7f4e9] pt-8 pb-4 md:py-16 border-b border-gray-100">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 text-center">
+          <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em] mb-4">Discover</p>
+          <h2 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 mb-8 md:mb-16">All Collections</h2>
           
           {categories.length === 0 ? (
             <div className="text-center py-10">
                <p className="text-sm text-gray-500 font-bold uppercase tracking-wider">No Collections Found.</p>
             </div>
           ) : (
-            <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
               {categories.map((cat: any, idx: number) => (
                 <Link 
                   href={`/category/${cat.slug?.current || cat.slug}`} 
                   key={cat._id || cat.id} 
                   prefetch={false}
-                  className="group block space-y-2 md:space-y-3 flex-shrink-0 w-[48%] md:w-auto"
+                  className="group block space-y-3 md:space-y-6 flex-shrink-0 w-[48%] md:w-auto"
                 >
-                  <div className="aspect-[3/5] bg-gray-50 rounded-xl md:rounded-2xl overflow-hidden relative shadow-sm transition-all duration-300 group-hover:shadow-md border border-[#D4AF37]/10">
+                  <div className="aspect-[3/5] bg-gray-50 rounded-2xl overflow-hidden relative shadow-sm transition-all duration-700 group-hover:shadow-xl border border-[#D4AF37]/10">
                       {cat.image ? (
                         <CdnImage 
                           source={cat.image} 
                           alt={cat.name}
                           fill
                           cdnWidth={600}
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          className="object-cover transition-transform duration-1000 group-hover:scale-110"
                         />
-                     ) : (
+                      ) : (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-200 gap-3 group-hover:bg-gray-100 transition-colors">
                            <div className="w-10 h-10 border border-[#D4AF37]/20 rounded-full flex items-center justify-center">
                               <ShoppingBag className="w-4 h-4 opacity-30 text-[#D4AF37]" />
                            </div>
                            <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 px-4 text-center">Awaiting Visuals</span>
                         </div>
-                     )}
+                      )}
                   </div>
-                  <div className="flex flex-col items-center gap-1 pt-3">
-                    <h3 className="text-[12px] font-bold uppercase tracking-widest text-gray-900 group-hover:text-[#D4AF37] transition-colors text-center">
+                  <div className="flex flex-col items-center gap-1">
+                    <h3 className="text-base md:text-xl font-serif font-bold text-gray-900 group-hover:text-[#D4AF37] transition-colors text-center">
                       {cat.name}
                     </h3>
+                    <div className="h-0.5 w-0 group-hover:w-8 bg-[#D4AF37] transition-all duration-500" />
                   </div>
                 </Link>
               ))}
@@ -134,7 +136,7 @@ export default async function Home() {
       <main id="featured" className="flex-1 max-w-[1400px] mx-auto px-4 sm:px-6 pt-12 md:pt-20 pb-6 md:pb-12 w-full">
         <div className="text-center mb-6 md:mb-12 space-y-2 md:space-y-3">
            <p className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-[0.4em]">Explore</p>
-           <h2 className="text-3xl md:text-5xl font-serif text-gray-900">All Products</h2>
+           <h2 className="text-3xl md:text-5xl font-serif font-bold text-gray-900">All Products</h2>
         </div>
 
         <ProductGrid products={products} />

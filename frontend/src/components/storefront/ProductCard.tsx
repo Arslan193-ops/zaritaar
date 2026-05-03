@@ -50,7 +50,7 @@ export default function ProductCard({ product, view = "1" }: ProductCardProps) {
 
 
         <Link href={`/product/${product.id}`} prefetch={false}>
-          <h3 className={`font-serif font-medium text-gray-900 group-hover:text-black transition-colors line-clamp-1 px-2 uppercase tracking-wide ${isGrid ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>
+          <h3 className={`font-serif font-medium text-gray-900 group-hover:text-black transition-colors line-clamp-2 px-2 uppercase tracking-wide min-h-[2.8em] flex items-center justify-center ${isGrid ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>
             {product.title}
           </h3>
         </Link>

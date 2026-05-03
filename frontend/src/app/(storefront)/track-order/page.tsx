@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils"
 
 export default function TrackOrderPage() {
   const [orderId, setOrderId] = useState("")
-  const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [order, setOrder] = useState<any>(null)
   const [error, setError] = useState("")
@@ -23,7 +22,7 @@ export default function TrackOrderPage() {
     setOrder(null)
 
     try {
-      const res = await getOrderStatus(orderId.trim(), email.trim())
+      const res = await getOrderStatus(orderId.trim())
       if (res.success) {
         setOrder(res.order)
       } else {
@@ -63,9 +62,9 @@ export default function TrackOrderPage() {
         </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleTrack} className="relative mb-20 group">
+        <form onSubmit={handleTrack} className="relative mb-20 group max-w-2xl">
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-[1.5]">
+            <div className="relative flex-1">
               <input 
                 type="text"
                 value={orderId}
@@ -76,19 +75,6 @@ export default function TrackOrderPage() {
               />
               <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300">
                 <Package className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="relative flex-[2]">
-              <input 
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="CUSTOMER EMAIL"
-                className="w-full h-16 bg-gray-50 border border-gray-100 rounded-2xl px-8 pr-16 text-sm font-bold tracking-widest text-gray-900 outline-none focus:bg-white focus:border-gray-900 transition-all uppercase placeholder:text-gray-300"
-                required
-              />
-              <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300">
-                <Search className="w-5 h-5" />
               </div>
             </div>
             <button 

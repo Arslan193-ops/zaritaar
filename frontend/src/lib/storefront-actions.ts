@@ -123,8 +123,10 @@ export async function searchStoreProducts(query: string) {
     where: {
       status: "PUBLISHED",
       OR: [
-        { title: { contains: query } },
-        { description: { contains: query } },
+        { title: { contains: query, mode: 'insensitive' } },
+        { description: { contains: query, mode: 'insensitive' } },
+        { sku: { contains: query, mode: 'insensitive' } },
+        { tags: { contains: query, mode: 'insensitive' } },
       ],
     },
     select: {

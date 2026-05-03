@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { sendOrderConfirmationEmail } from "@/lib/mail"
 
 export async function createOrder(data: {
   customerName: string
@@ -156,6 +157,14 @@ export async function createOrder(data: {
       })
     })
 
+    // Send Order Confirmation Email via Brevo
+    await sendOrderConfirmationEmail({
+      toEmail: order.customerEmail,
+      customerName: order.customerName,
+      orderId: order.id,
+      totalAmount: order.totalAmount
+    }).catch(err => console.error("Email trigger failed:", err));
+
     revalidatePath("/admin/products", "page")
     revalidatePath(`/product`, "layout")
 
@@ -166,16 +175,15 @@ export async function createOrder(data: {
   }
 }
 
-export async function getOrderStatus(orderId: string, email: string) {
+export async function getOrderStatus(orderId: string) {
   try {
-    if (!orderId || !email) {
-      return { success: false, error: "Order ID and Email are required." }
+    if (!orderId) {
+      return { success: false, error: "Order ID is required." }
     }
 
     const order = await prisma.order.findUnique({
       where: { 
         id: orderId,
-        customerEmail: email.toLowerCase()
       },
       select: {
         id: true,

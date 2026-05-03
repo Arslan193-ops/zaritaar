@@ -57,7 +57,7 @@ export default async function CategoryPage({
            <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em] mb-4">
               Curated Collection
            </p>
-           <h1 className="text-3xl md:text-5xl font-serif text-gray-900 mb-6">
+           <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 mb-6">
              {category.name}
            </h1>
            {category.description && (

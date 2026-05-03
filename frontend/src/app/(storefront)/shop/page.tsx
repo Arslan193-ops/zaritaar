@@ -38,7 +38,7 @@ export default async function ShopPage({
            <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em] mb-4">
               The Collection
            </p>
-           <h1 className="text-3xl md:text-5xl font-serif text-gray-900 mb-6">
+           <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 mb-6">
              All Products
            </h1>
            <p className="max-w-xl text-sm text-gray-500 leading-relaxed font-medium mx-auto">

@@ -18,11 +18,11 @@ interface HeroSliderProps {
   quality?: number
 }
 
-export default function HeroSlider({ 
-  images = [], 
-  headline, 
-  subtext, 
-  buttonText, 
+export default function HeroSlider({
+  images = [],
+  headline,
+  subtext,
+  buttonText,
   buttonLink,
   badgeText,
   showHeadline = true,
@@ -39,12 +39,12 @@ export default function HeroSlider({
     const timer = setInterval(() => {
       setPrevIndex(currentIndex)
       setCurrentIndex((prev) => (prev + 1) % images.length)
-    }, 7000)
+    }, 4000)
     return () => clearInterval(timer)
   }, [images.length, currentIndex])
 
   if (images.length === 0) {
-     return null // Fallback to parent static hero if no images
+    return null // Fallback to parent static hero if no images
   }
 
   return (
@@ -90,58 +90,58 @@ export default function HeroSlider({
       {/* Content Overlay */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 h-full flex flex-col justify-center">
         <div className="max-w-3xl">
-            <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: 0.2, duration: 0.8 }}
-               className="inline-flex items-center gap-2 py-1 px-3 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-white/80 border border-white/10 mb-8"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="inline-flex items-center gap-2 py-1 px-3 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-white/80 border border-white/10 mb-8"
+          >
+            {badgeText || "Premium Collection 2024"}
+          </motion.div>
+
+          {showHeadline && (
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="text-2xl sm:text-4xl md:text-8xl font-bold text-white leading-[1.1] mb-6 md:mb-8 tracking-tighter drop-shadow-2xl"
             >
-                {badgeText || "Premium Collection 2024"}
+              {headline?.split(" ").map((word, i) => (
+                <span key={i} className={i % 2 === 1 ? "text-white/60" : "text-white"}>
+                  {word}{" "}
+                  {i === 1 && <br className="hidden md:block" />}
+                </span>
+              )) || "ELEVATING THE MODERN STANDARD."}
+            </motion.h1>
+          )}
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="text-sm md:text-xl text-white/80 max-w-xl mb-8 md:mb-12 font-medium leading-relaxed drop-shadow-lg"
+          >
+            {subtext || "Discover our meticulously engineered collection. Designed for the technical curator who appreciates the finer details."}
+          </motion.p>
+
+          {showButton && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.8 }}
+              className="flex flex-wrap items-center gap-6"
+            >
+              <Link href={buttonLink || "#featured"} className="group relative bg-black text-white hover:bg-white hover:text-black border border-black px-10 py-4 font-bold text-sm uppercase tracking-widest transition-all rounded-2xl shadow-2xl flex items-center gap-2">
+                {buttonText || "Shop Collection"}
+                <motion.span
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                >
+                  →
+                </motion.span>
+              </Link>
             </motion.div>
-
-            {showHeadline && (
-                <motion.h1 
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.8 }}
-                    className="text-2xl sm:text-4xl md:text-8xl font-bold text-white leading-[1.1] mb-6 md:mb-8 tracking-tighter drop-shadow-2xl"
-                >
-                    {headline?.split(" ").map((word, i) => (
-                        <span key={i} className={i % 2 === 1 ? "text-white/60" : "text-white"}>
-                            {word}{" "}
-                            {i === 1 && <br className="hidden md:block" />}
-                        </span>
-                    )) || "ELEVATING THE MODERN STANDARD."}
-                </motion.h1>
-            )}
-
-            <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.8 }}
-                className="text-sm md:text-xl text-white/80 max-w-xl mb-8 md:mb-12 font-medium leading-relaxed drop-shadow-lg"
-            >
-                {subtext || "Discover our meticulously engineered collection. Designed for the technical curator who appreciates the finer details."}
-            </motion.p>
-
-            {showButton && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8, duration: 0.8 }}
-                    className="flex flex-wrap items-center gap-6"
-                >
-                    <Link href={buttonLink || "#featured"} className="group relative bg-black text-white hover:bg-white hover:text-black border border-black px-10 py-4 font-bold text-sm uppercase tracking-widest transition-all rounded-2xl shadow-2xl flex items-center gap-2">
-                        {buttonText || "Shop Collection"}
-                        <motion.span 
-                            animate={{ x: [0, 5, 0] }} 
-                            transition={{ repeat: Infinity, duration: 2 }}
-                        >
-                            →
-                        </motion.span>
-                    </Link>
-                </motion.div>
-            )}
+          )}
         </div>
       </div>
 
@@ -152,9 +152,8 @@ export default function HeroSlider({
             <button
               key={i}
               onClick={() => setCurrentIndex(i)}
-              className={`h-1.5 transition-all duration-500 rounded-full ${
-                currentIndex === i ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
-              }`}
+              className={`h-1.5 transition-all duration-500 rounded-full ${currentIndex === i ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
+                }`}
               aria-label={`Go to slide ${i + 1}`}
             />
           ))}

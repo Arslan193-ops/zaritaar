@@ -41,13 +41,19 @@ export default function CheckoutPage() {
       const data = await res.json()
       if (data.success) {
         setAppliedCoupon(data.coupon)
-        toast.success("Coupon applied successfully!")
+        toast.success("Coupon Applied", {
+          description: "Your discount has been successfully applied to the total."
+        })
       } else {
         setAppliedCoupon(null)
-        toast.error(data.error || "Invalid coupon code.")
+        toast.error("Invalid Coupon", {
+          description: data.error || "Please double-check the code and try again."
+        })
       }
     } catch {
-      toast.error("Failed to apply coupon. Please try again.")
+      toast.error("System Error", {
+        description: "There was a problem applying your coupon. Please check your connection."
+      })
     } finally {
       setIsApplyingCoupon(false)
     }
@@ -67,7 +73,9 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault()
     if (cart.length === 0) {
-      toast.error("Your shopping bag is empty.")
+      toast.error("Empty Bag", {
+        description: "Please add some items to your shopping bag before checking out."
+      })
       return
     }
     setIsSubmitting(true)
@@ -87,13 +95,19 @@ export default function CheckoutPage() {
         localStorage.removeItem('cart')
         setCart([])
         window.dispatchEvent(new Event('cartUpdated'))
-        toast.success("Order placed successfully. Thank you.")
+        toast.success("Order Confirmed", {
+          description: "Thank you for shopping with Zaritaar. A confirmation email is on its way to you."
+        })
         setCheckoutComplete(true)
       } else {
-        toast.error(res.error || "Error placing order.")
+        toast.error("Order Failed", {
+          description: res.error || "There was a problem processing your order. Please try again."
+        })
       }
     } catch (err) {
-      toast.error("Error placing order. Please try again.")
+      toast.error("Connection Error", {
+        description: "We couldn't reach the server. Please check your internet and try again."
+      })
       console.error(err)
     } finally {
       setIsSubmitting(false)

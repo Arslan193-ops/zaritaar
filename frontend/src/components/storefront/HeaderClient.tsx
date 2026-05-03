@@ -88,7 +88,7 @@ export default function HeaderClient({ settings, categories: initialCategories =
     if (isSearchOpen) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
       const handleEsc = (e: KeyboardEvent) => {
-        if (e.key === "Escape") setIsSearchOpen(false);
+        if (e.key === "Escape") closeSearch();
       };
       window.addEventListener("keydown", handleEsc);
       return () => window.removeEventListener("keydown", handleEsc);
@@ -118,18 +118,24 @@ export default function HeaderClient({ settings, categories: initialCategories =
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
   const handleSearchSubmit = () => {
     if (!searchQuery.trim()) return;
-    setIsSearchOpen(false);
-    router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    setSearchQuery("");
+    const query = searchQuery.trim();
+    closeSearch();
+    router.push(`/search?q=${encodeURIComponent(query)}`);
   };
 
   const removeFromCart = (index: number) => {
     const item = cartItems[index];
-    toast(`Remove "${item.title}" from bag?`, {
+    toast(`Remove "${item.title}"?`, {
       duration: Infinity,
-      description: "This action cannot be undone.",
+      description: "Are you sure you want to remove this item from your shopping bag?",
       action: {
         label: "Remove",
         onClick: () => {
@@ -137,11 +143,13 @@ export default function HeaderClient({ settings, categories: initialCategories =
           newCart.splice(index, 1)
           localStorage.setItem("cart", JSON.stringify(newCart))
           window.dispatchEvent(new Event("cartUpdated"))
-          toast.success("Item removed from bag")
+          toast.success("Bag Updated", {
+            description: "The item has been removed from your bag."
+          })
         }
       },
       cancel: {
-        label: "Cancel",
+        label: "Keep It",
         onClick: () => {}
       }
     })
@@ -153,82 +161,99 @@ export default function HeaderClient({ settings, categories: initialCategories =
     <header className="sticky top-0 z-50 w-full bg-white transition-all duration-300 rounded-none">
       <AnimatePresence>
         {isSearchOpen && isMounted && (
-          <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4">
+          <div className="fixed inset-0 z-[100] flex items-start justify-center pt-4 md:pt-16 px-4">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsSearchOpen(false)}
+              onClick={closeSearch}
               className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden overflow-y-auto max-h-[80vh] no-scrollbar"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[60vh] md:max-h-[70vh]"
             >
-              <div className="flex items-center gap-4 px-6 py-5 border-b border-gray-100">
-                {isSearching ? <Loader2 className="w-5 h-5 text-black animate-spin" /> : <Search className="w-5 h-5 text-gray-400" />}
+              <div className="flex items-center gap-4 px-6 py-4 border-b border-gray-100">
+                {isSearching ? (
+                  <Loader2 className="w-5 h-5 text-[#D4AF37] animate-spin" />
+                ) : (
+                  <Search className="w-5 h-5 text-gray-400" />
+                )}
                 <input 
                   ref={searchInputRef}
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
-                  placeholder="WHAT ARE YOU LOOKING FOR?"
-                  className="flex-1 bg-transparent border-none outline-none text-base sm:text-lg font-bold tracking-wider placeholder:text-gray-300 uppercase"
+                  placeholder="Search products..."
+                  className="flex-1 bg-transparent border-none outline-none text-base md:text-lg font-serif font-bold text-gray-900 placeholder:text-gray-300"
                 />
-                <button onClick={() => setIsSearchOpen(false)} className="p-1 text-gray-400 hover:text-black transition-colors">
-                   <X className="w-6 h-6" />
+                <button 
+                  onClick={closeSearch} 
+                  className="p-2 text-gray-400 hover:text-black transition-colors"
+                >
+                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {searchQuery.length >= 2 ? (
-                <div className="px-6 py-6 space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-2">
-                        {isSearching ? 'Searching...' : 'Found Suggestions'}
+              <div className="flex-1 overflow-y-auto no-scrollbar p-6">
+                {searchQuery.length >= 2 ? (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+                      <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest">
+                        {isSearching ? 'Searching...' : 'Results'}
                       </p>
-                      {searchResults.length > 0 ? (
-                        <div className="space-y-1">
-                          {searchResults.map((product) => (
-                            <Link 
-                              key={product.id} 
-                              href={`/product/${product.id}`}
-                              prefetch={false}
-                              onClick={() => setIsSearchOpen(false)}
-                              className="flex items-center gap-4 group hover:bg-black hover:text-white p-2 -mx-2 rounded-2xl transition-all duration-300"
-                            >
-                              <div className="w-10 h-14 bg-gray-100 relative overflow-hidden shrink-0 rounded-xl">
-                                {product.image ? (
-                                <CdnImage source={product.image} alt={product.title} fill sizes="40px" className="object-cover group-hover:scale-110 transition-transform duration-700" />
-                                ) : (
-                                <Image src="/placeholder.svg" alt="" fill className="object-cover" unoptimized={true} />
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="text-[11px] font-bold uppercase tracking-wider line-clamp-1">{product.title}</h4>
-                                <p className="text-[10px] font-bold opacity-60">Rs. {product.basePrice?.toLocaleString()}</p>
-                              </div>
-                              <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                            </Link>
-                          ))}
-                        </div>
-                      ) : !isSearching && (
-                         <div className="py-4 text-center">
-                            <p className="text-[11px] font-bold text-gray-400 italic">No matches found...</p>
-                         </div>
-                      )}
                     </div>
+
+                    {searchResults.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-2">
+                        {searchResults.map((product) => (
+                          <Link 
+                            key={product.id} 
+                            href={`/product/${product.id}`}
+                            prefetch={false}
+                            onClick={closeSearch}
+                            className="flex items-center gap-4 group p-3 hover:bg-gray-50 rounded-2xl transition-all duration-300"
+                          >
+                            <div className="w-10 h-14 bg-gray-100 relative overflow-hidden shrink-0 rounded-xl">
+                              {product.image ? (
+                              <CdnImage source={product.image} alt={product.title} fill sizes="40px" className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                              ) : (
+                              <Image src="/placeholder.svg" alt="" fill className="object-cover" unoptimized={true} />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-[13px] font-serif font-bold text-gray-900 truncate">{product.title}</h4>
+                              <p className="text-[11px] font-bold text-[#D4AF37]">Rs. {product.basePrice?.toLocaleString()}</p>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-black group-hover:translate-x-1 transition-all" />
+                          </Link>
+                        ))}
+                      </div>
+                    ) : !isSearching && (
+                       <div className="py-12 text-center">
+                          <p className="text-sm font-serif text-gray-400">No matches found</p>
+                       </div>
+                    )}
                   </div>
-                </div>
-              ) : (
-                <div className="px-6 py-10 flex flex-col items-center justify-center text-center space-y-3">
-                  <Search className="w-5 h-5 text-gray-300" />
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Type to start searching</p>
-                </div>
+                ) : (
+                  <div className="py-16 flex flex-col items-center justify-center text-center space-y-3">
+                    <Search className="w-8 h-8 text-gray-100" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Start typing to search</p>
+                  </div>
+                )}
+              </div>
+              
+              {searchQuery.length >= 2 && (
+                <button 
+                  onClick={handleSearchSubmit}
+                  className="bg-black text-white w-full py-4 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-neutral-800 transition-all"
+                >
+                  View All Results
+                </button>
               )}
             </motion.div>
           </div>
@@ -431,7 +456,14 @@ export default function HeaderClient({ settings, categories: initialCategories =
                                  <Trash2 className="w-4 h-4" />
                               </button>
                            </div>
-                           <p className="text-[10px] font-bold text-gray-400 mt-1">{item.variantName || 'Boutique Item'}</p>
+                           <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                              {item.selections && Object.entries(item.selections).map(([key, val]) => (
+                                <span key={key} className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                  {key}: <span className="text-gray-900">{val as string}</span>
+                                </span>
+                              ))}
+                              {!item.selections && <p className="text-[10px] font-bold text-gray-400">Boutique Item</p>}
+                           </div>
                            <div className="mt-auto flex items-center justify-between">
                               <span className="text-[10px] font-bold text-gray-500">Qty: {item.quantity || 1}</span>
                               <span className="text-xs font-medium">Rs. {(item.price || 0).toLocaleString()}</span>

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Check, ShoppingBag, MessageCircle, Ruler, Info, X, Maximize2, Truck } from "lucide-react"
@@ -49,9 +49,22 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
   const currentPrice = selectedVariant?.price || product.basePrice
   const currentStock = selectedVariant?.stock ?? product.stock ?? 0
 
+  // Handle stock changes when switching variants
+  useEffect(() => {
+    if (currentStock === 0) {
+      setQuantity(0)
+    } else if (quantity > currentStock) {
+      setQuantity(currentStock)
+    } else if (quantity === 0 && currentStock > 0) {
+      setQuantity(1)
+    }
+  }, [currentStock, quantity])
+
   const handleAddToCart = (silent = false) => {
     if (!selectedVariant && Object.keys(options).length > 0) {
-      toast.error("Please select all required options.")
+      toast.error("Selection Required", {
+        description: "Please select your preferred size and color before adding to bag."
+      })
       return false
     }
 
@@ -66,7 +79,9 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
 
     if (existingIndex >= 0) {
       if (currentCart[existingIndex].quantity + quantity > currentStock) {
-        toast.error(`Only ${currentStock} items available in stock.`)
+        toast.error("Stock Limit Reached", {
+          description: `We only have ${currentStock} units available for this selection.`
+        })
         if (!silent) setAdding(false)
         return false
       }
@@ -89,7 +104,7 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
     
     if (!silent) {
        toast.success("Added to Bag", {
-         description: `${product.title} has been added to your bag.`,
+         description: `${product.title} has been successfully added to your shopping bag.`,
          action: {
            label: "View Bag",
            onClick: () => window.dispatchEvent(new Event('openCart'))
@@ -337,7 +352,9 @@ export function AddToCartBtn({ product, options, whatsappNumber }: AddToCartBtnP
               if (quantity < currentStock) {
                 setQuantity(quantity + 1)
               } else {
-                toast.error(`Only ${currentStock} items available.`)
+                toast.error("Stock Limit", {
+                  description: "You cannot add more items as we have reached the maximum available stock for this selection."
+                })
               }
             }} 
             className="flex-1 h-full flex items-center justify-center hover:bg-gray-50 text-gray-400 hover:text-black font-bold"
